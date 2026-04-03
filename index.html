@@ -7,693 +7,406 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Source+Serif+4:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
-/* ── ROOT TOKENS ── */
+/* ─── TOKENS ─────────────────────────────────────── */
 :root {
-  --sapphire:       #1B4B8A;
-  --sapphire-deep:  #0F2F5C;
-  --sapphire-mid:   #2A5FA8;
-  --sapphire-light: #D6E4F5;
-  --sapphire-pale:  #EEF4FC;
-  --gold:           #B8965A;
-  --gold-light:     #D4AF78;
-  --gold-pale:      #F7F0E4;
-  --cream:          #FAF7F2;
-  --warm-white:     #FDFBF8;
-  --charcoal:       #1E2535;
-  --slate:          #4A5568;
-  --mist:           #8097B1;
-  --stone:          #E8E2D9;
-  --shadow:         rgba(15,47,92,0.12);
-  --radius:         16px;
-  --radius-sm:      10px;
-  --safe-bottom:    env(safe-area-inset-bottom, 0px);
+  --sapphire:      #1B4B8A;
+  --sapphire-deep: #0F2F5C;
+  --sapphire-mid:  #2A5FA8;
+  --sapphire-light:#D6E4F5;
+  --sapphire-pale: #EEF4FC;
+  --gold:          #B8965A;
+  --gold-light:    #D4AF78;
+  --gold-pale:     #F7F0E4;
+  --cream:         #FAF7F2;
+  --warm-white:    #FDFBF8;
+  --charcoal:      #1E2535;
+  --slate:         #4A5568;
+  --mist:          #8097B1;
+  --stone:         #E8E2D9;
+  --shadow:        rgba(15,47,92,0.12);
+}
+*,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+html,body{ height:100%; overflow:hidden; }
+body{
+  font-family:'DM Sans',sans-serif;
+  background:#1a1a2e;
+  display:flex; align-items:center; justify-content:center;
+  min-height:100vh;
 }
 
-/* ── RESET ── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html, body { height: 100%; overflow: hidden; }
-body {
-  font-family: 'DM Sans', sans-serif;
-  background: #1a1a2e;
-  display: flex; align-items: center; justify-content: center;
-  min-height: 100vh;
+/* ─── PHONE SHELL ─────────────────────────────────── */
+.phone-outer{
+  position:relative; width:393px; height:852px;
+  background:#101018; border-radius:54px;
+  box-shadow:0 0 0 1.5px #3a3a4a,0 0 0 3px #222230,
+    0 30px 80px rgba(0,0,0,.7),0 10px 30px rgba(0,0,0,.5),
+    inset 0 0 0 1px rgba(255,255,255,.06);
+  overflow:hidden; flex-shrink:0;
+}
+.phone-outer::before{
+  content:''; position:absolute; left:-3px; top:130px;
+  width:3px; height:36px; background:#2a2a38; border-radius:3px 0 0 3px;
+  box-shadow:0 50px 0 #2a2a38,0 95px 0 #2a2a38;
+}
+.phone-outer::after{
+  content:''; position:absolute; right:-3px; top:155px;
+  width:3px; height:68px; background:#2a2a38; border-radius:0 3px 3px 0;
+}
+.phone-screen{
+  position:absolute; inset:0; border-radius:54px;
+  overflow:hidden; background:var(--warm-white);
+}
+.dynamic-island{
+  position:absolute; top:12px; left:50%; transform:translateX(-50%);
+  width:120px; height:34px; background:#000; border-radius:20px; z-index:1000;
+}
+.status-bar{
+  position:absolute; top:0; left:0; right:0; height:54px;
+  display:flex; align-items:flex-end; justify-content:space-between;
+  padding:0 28px 8px; z-index:100;
+  font-size:12px; font-weight:600; color:var(--charcoal); pointer-events:none;
+}
+.status-bar.light{ color:white; }
+.status-icons{ display:flex; align-items:center; gap:5px; }
+
+/* ─── APP WRAPPER ─────────────────────────────────── */
+.app{ position:absolute; inset:0; }
+
+/* ─── NAVIGATION: simple active/inactive class toggle ─ */
+/* Every screen is absolutely positioned, filling the phone */
+.screen{
+  position:absolute; inset:0;
+  display:flex; flex-direction:column; overflow:hidden;
+  background:var(--warm-white);
+  /* Hidden by default: pushed off-screen right */
+  transform:translateX(100%);
+  transition:transform 0.38s cubic-bezier(0.4,0,0.2,1);
+  z-index:1;
+}
+/* Active screen: visible */
+.screen.active{
+  transform:translateX(0);
+  z-index:2;
+}
+/* Home is special: starts visible */
+#screen-home{
+  transform:translateX(0);
+  z-index:2;
 }
 
-/* ── PHONE SHELL ── */
-.phone-outer {
-  position: relative;
-  width: 393px;
-  height: 852px;
-  background: #101018;
-  border-radius: 54px;
-  box-shadow:
-    0 0 0 1.5px #3a3a4a,
-    0 0 0 3px #222230,
-    0 30px 80px rgba(0,0,0,0.7),
-    0 10px 30px rgba(0,0,0,0.5),
-    inset 0 0 0 1px rgba(255,255,255,0.06);
-  overflow: hidden;
-  flex-shrink: 0;
+/* ─── SCROLL AREA ─────────────────────────────────── */
+.scroll-area{
+  flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none;
+}
+.scroll-area::-webkit-scrollbar{ display:none; }
+
+/* ─── TAB BAR ─────────────────────────────────────── */
+.tab-bar{
+  height:83px; background:rgba(253,251,248,.97); backdrop-filter:blur(20px);
+  border-top:1px solid var(--stone);
+  display:flex; align-items:flex-start; justify-content:space-around;
+  padding:10px 0 0; flex-shrink:0; z-index:50;
+}
+.tab-item{ display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; padding:0 12px; flex:1; }
+.tab-icon{ width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:8px; transition:background .2s; }
+.tab-icon svg{ width:22px; height:22px; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; fill:none; }
+.tab-label{ font-size:10px; font-weight:500; letter-spacing:.02em; }
+.tab-item.active .tab-icon{ background:var(--sapphire-pale); }
+.tab-item.active .tab-icon svg{ stroke:var(--sapphire); }
+.tab-item.active .tab-label{ color:var(--sapphire); font-weight:600; }
+.tab-item:not(.active) .tab-icon svg{ stroke:var(--mist); }
+.tab-item:not(.active) .tab-label{ color:var(--mist); }
+
+/* ─── HOME SCREEN ─────────────────────────────────── */
+.home-header{
+  background:linear-gradient(160deg,var(--sapphire-deep) 0%,var(--sapphire) 100%);
+  padding:58px 22px 28px; position:relative; overflow:hidden; flex-shrink:0;
+}
+.home-header::before{
+  content:''; position:absolute; inset:0;
+  background:radial-gradient(ellipse at 80% 30%,rgba(184,150,90,.18) 0%,transparent 60%);
+}
+.header-logo{ height:38px; width:auto; position:relative; z-index:1; margin-bottom:20px; }
+.header-greeting{ position:relative; z-index:1; font-size:13px; color:rgba(255,255,255,.65); margin-bottom:3px; }
+.header-name{ position:relative; z-index:1; font-family:'Playfair Display',serif; font-size:26px; font-weight:700; color:white; line-height:1.15; }
+.header-name em{ font-style:italic; color:var(--gold-light); }
+
+.progress-card{
+  position:relative; z-index:1;
+  background:rgba(255,255,255,.10); backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,.16); border-radius:16px;
+  padding:16px 18px; margin-top:18px; display:flex; align-items:center; gap:16px;
+}
+.progress-ring-wrap{ position:relative; flex-shrink:0; }
+.progress-ring-wrap svg{ width:58px; height:58px; transform:rotate(-90deg); }
+.ring-bg{ fill:none; stroke:rgba(255,255,255,.15); stroke-width:5; }
+.ring-fill{ fill:none; stroke:var(--gold-light); stroke-width:5; stroke-linecap:round; stroke-dasharray:151.6; stroke-dashoffset:106; }
+.ring-label{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:white; }
+.progress-title{ font-size:13px; color:rgba(255,255,255,.70); margin-bottom:3px; }
+.progress-stat{ font-family:'Playfair Display',serif; font-size:17px; font-weight:600; color:white; }
+.progress-sub{ font-size:11px; color:rgba(255,255,255,.52); margin-top:2px; }
+
+.section-header{ display:flex; align-items:center; justify-content:space-between; padding:20px 22px 12px; }
+.section-title{ font-family:'Playfair Display',serif; font-size:18px; font-weight:700; color:var(--charcoal); }
+.section-link{ font-size:12px; font-weight:600; color:var(--sapphire); cursor:pointer; }
+
+/* ─── COURSE MATRIX ───────────────────────────────── */
+.course-matrix{ display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 22px 4px; }
+.course-card{
+  background:white; border:1px solid var(--stone); border-radius:16px;
+  overflow:hidden; cursor:pointer; position:relative;
+  box-shadow:0 3px 12px rgba(15,47,92,.08);
+  transition:transform .18s,box-shadow .18s;
+  display:flex; flex-direction:column;
+  -webkit-tap-highlight-color:transparent;
+}
+.course-card:active{ transform:scale(0.96); box-shadow:0 6px 20px rgba(15,47,92,.16); }
+.course-card-accent{ height:4px; width:100%; flex-shrink:0; }
+.course-card-body{ padding:12px 12px 14px; flex:1; display:flex; flex-direction:column; }
+.course-status-pill{
+  display:inline-flex; align-items:center; font-size:9px; font-weight:700;
+  letter-spacing:.08em; text-transform:uppercase;
+  padding:3px 8px; border-radius:100px; margin-bottom:8px; align-self:flex-start;
+}
+.pill-progress{ background:rgba(27,75,138,.10); color:var(--sapphire); }
+.pill-new{ background:rgba(184,150,90,.14); color:var(--gold); }
+.pill-locked{ background:var(--stone); color:var(--mist); }
+.course-card h4{ font-family:'Playfair Display',serif; font-size:13px; font-weight:700; color:var(--charcoal); line-height:1.35; margin-bottom:6px; flex:1; }
+.course-card-meta{ display:flex; align-items:center; justify-content:space-between; margin-top:8px; }
+.course-card-stat{ font-size:10px; color:var(--mist); display:flex; align-items:center; gap:3px; }
+.course-card-stat svg{ width:10px; height:10px; stroke:var(--mist); fill:none; stroke-width:2; stroke-linecap:round; }
+.card-prog-bar{ height:3px; background:var(--stone); border-radius:2px; overflow:hidden; margin-top:8px; }
+.card-prog-fill{ height:100%; border-radius:2px; }
+.course-card-arrow{
+  position:absolute; bottom:12px; right:12px; width:22px; height:22px;
+  border-radius:50%; background:var(--sapphire-pale);
+  display:flex; align-items:center; justify-content:center;
+}
+.course-card-arrow svg{ width:10px; height:10px; stroke:var(--sapphire); fill:none; stroke-width:2.5; stroke-linecap:round; }
+
+/* ─── QUICK TILES ─────────────────────────────────── */
+.quick-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:0 22px 8px; }
+.quick-tile{
+  background:white; border:1px solid var(--stone); border-radius:14px; padding:16px 14px;
+  cursor:pointer; transition:transform .2s; position:relative; overflow:hidden;
+}
+.quick-tile:active{ transform:scale(0.96); }
+.quick-tile-icon{ width:38px; height:38px; border-radius:10px; background:var(--sapphire-pale); display:flex; align-items:center; justify-content:center; margin-bottom:10px; }
+.quick-tile-icon svg{ width:20px; height:20px; stroke:var(--sapphire); fill:none; stroke-width:1.6; stroke-linecap:round; }
+.quick-tile h4{ font-size:12.5px; font-weight:600; color:var(--charcoal); line-height:1.35; margin-bottom:4px; }
+.quick-tile p{ font-size:10.5px; color:var(--mist); line-height:1.5; }
+.quick-tile-badge{
+  position:absolute; top:10px; right:10px;
+  background:var(--gold-pale); color:var(--gold);
+  font-size:9px; font-weight:700; padding:2px 7px; border-radius:100px;
 }
 
-/* Side buttons */
-.phone-outer::before {
-  content: '';
-  position: absolute;
-  left: -3px; top: 130px;
-  width: 3px; height: 36px;
-  background: #2a2a38;
-  border-radius: 3px 0 0 3px;
-  box-shadow: 0 50px 0 #2a2a38, 0 95px 0 #2a2a38;
+.daily-tip{
+  margin:4px 22px 20px; background:var(--gold-pale);
+  border:1px solid rgba(184,150,90,.22); border-radius:16px; padding:16px 18px;
+  display:flex; gap:14px; align-items:flex-start; cursor:pointer;
 }
-.phone-outer::after {
-  content: '';
-  position: absolute;
-  right: -3px; top: 155px;
-  width: 3px; height: 68px;
-  background: #2a2a38;
-  border-radius: 0 3px 3px 0;
-}
+.tip-icon{ width:36px; height:36px; border-radius:10px; background:var(--gold); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.tip-icon svg{ width:18px; height:18px; stroke:white; fill:none; stroke-width:1.8; stroke-linecap:round; }
+.tip-label{ font-size:10px; font-weight:700; color:var(--gold); text-transform:uppercase; letter-spacing:.1em; margin-bottom:4px; }
+.tip-text{ font-family:'Source Serif 4',serif; font-size:13px; font-style:italic; color:var(--charcoal); line-height:1.55; }
 
-/* Screen */
-.phone-screen {
-  position: absolute;
-  inset: 0;
-  border-radius: 54px;
-  overflow: hidden;
-  background: var(--warm-white);
+/* ─── COURSE SCREEN ───────────────────────────────── */
+.course-hero{
+  padding:54px 22px 24px; position:relative; overflow:hidden; flex-shrink:0;
 }
+.course-hero::before{
+  content:''; position:absolute; inset:0;
+  background:radial-gradient(ellipse at 75% 25%,rgba(184,150,90,.16) 0%,transparent 55%);
+}
+.back-btn{
+  position:relative; z-index:2;
+  display:inline-flex; align-items:center; gap:5px;
+  background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18);
+  color:white; font-size:13px; font-weight:500;
+  padding:6px 14px 6px 10px; border-radius:100px; cursor:pointer; margin-bottom:18px;
+}
+.back-btn svg{ width:14px; height:14px; stroke:white; fill:none; stroke-width:2.2; stroke-linecap:round; }
+.course-tag-row{ display:flex; gap:8px; margin-bottom:12px; position:relative; z-index:1; }
+.ctag{ background:rgba(184,150,90,.25); color:var(--gold-light); font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; padding:4px 10px; border-radius:100px; }
+.course-hero h2{ position:relative; z-index:1; font-family:'Playfair Display',serif; font-size:22px; font-weight:700; color:white; line-height:1.3; margin-bottom:10px; }
+.course-hero-sub{ position:relative; z-index:1; font-size:13px; color:rgba(255,255,255,.70); line-height:1.6; margin-bottom:18px; }
+.course-stats-row{ position:relative; z-index:1; display:flex; gap:18px; }
+.cstat{ display:flex; align-items:center; gap:5px; font-size:12px; color:rgba(255,255,255,.65); }
+.cstat svg{ width:13px; height:13px; stroke:rgba(255,255,255,.5); fill:none; stroke-width:2; stroke-linecap:round; }
 
-/* Dynamic Island */
-.dynamic-island {
-  position: absolute;
-  top: 12px; left: 50%;
-  transform: translateX(-50%);
-  width: 120px; height: 34px;
-  background: #000;
-  border-radius: 20px;
-  z-index: 1000;
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.04);
-}
+.course-prog-wrap{ padding:16px 22px 0; flex-shrink:0; }
+.course-prog-label{ display:flex; justify-content:space-between; font-size:12px; color:var(--slate); margin-bottom:6px; font-weight:500; }
+.course-prog-bar{ height:6px; background:var(--stone); border-radius:3px; overflow:hidden; }
+.course-prog-fill{ height:100%; background:linear-gradient(90deg,var(--sapphire),var(--sapphire-mid)); border-radius:3px; width:30%; }
 
-/* Status bar */
-.status-bar {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 54px;
-  display: flex; align-items: flex-end; justify-content: space-between;
-  padding: 0 28px 8px;
-  z-index: 100;
-  font-size: 12px; font-weight: 600;
-  color: var(--charcoal);
-  pointer-events: none;
+.lesson-list{ padding:16px 22px 8px; }
+.lesson-section-label{ font-size:11px; font-weight:700; color:var(--mist); text-transform:uppercase; letter-spacing:.12em; margin-bottom:10px; margin-top:18px; }
+.lesson-item{
+  display:flex; align-items:center; gap:14px;
+  padding:14px 16px; background:white; border:1px solid var(--stone);
+  border-radius:14px; margin-bottom:10px;
+  transition:transform .15s,box-shadow .15s;
 }
-.status-bar.light { color: white; }
-.status-icons { display: flex; align-items: center; gap: 5px; }
-.status-icons svg { width: 16px; height: 12px; }
+.lesson-item.clickable{ cursor:pointer; }
+.lesson-item.clickable:active{ transform:scale(0.98); box-shadow:0 4px 16px var(--shadow); }
+.lesson-item.active-lesson{ border-color:var(--sapphire-light); background:var(--sapphire-pale); }
+.lesson-num{ width:36px; height:36px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-family:'Playfair Display',serif; font-size:14px; font-weight:700; }
+.lesson-num.done{ background:var(--sapphire); color:white; }
+.lesson-num.current{ background:var(--sapphire-pale); color:var(--sapphire); border:2px solid var(--sapphire-light); }
+.lesson-num.locked{ background:var(--stone); color:var(--mist); }
+.lesson-info{ flex:1; }
+.lesson-info h4{ font-size:14px; font-weight:600; color:var(--charcoal); margin-bottom:2px; }
+.lesson-info span{ font-size:11.5px; color:var(--mist); }
+.lesson-arrow svg{ width:14px; height:14px; stroke:var(--mist); fill:none; stroke-width:2; stroke-linecap:round; }
 
-/* ── APP CONTAINER ── */
-.app {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+.start-btn-wrap{ padding:16px 22px; flex-shrink:0; }
+.start-btn{
+  width:100%; padding:16px; border-radius:14px; border:none; cursor:pointer;
+  background:linear-gradient(135deg,var(--sapphire) 0%,var(--sapphire-mid) 100%);
+  color:white; font-size:16px; font-weight:600; font-family:'DM Sans',sans-serif;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  box-shadow:0 6px 20px rgba(27,75,138,.35);
 }
+.start-btn svg{ width:18px; height:18px; stroke:white; fill:none; stroke-width:2; stroke-linecap:round; }
 
-/* ── SCREENS ── */
-.screen {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  transition: transform 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.4s ease;
+/* ─── LESSON SCREEN ───────────────────────────────── */
+.lesson-nav{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:54px 22px 14px; background:var(--warm-white);
+  border-bottom:1px solid var(--stone); flex-shrink:0;
 }
-.screen.hidden { transform: translateX(100%); opacity: 0; pointer-events: none; }
-.screen.slide-left { transform: translateX(-8%); opacity: 0.6; pointer-events: none; }
+.lesson-nav-back{
+  display:flex; align-items:center; gap:4px; cursor:pointer;
+  font-size:14px; font-weight:500; color:var(--sapphire);
+}
+.lesson-nav-back svg{ width:18px; height:18px; stroke:var(--sapphire); fill:none; stroke-width:2.2; stroke-linecap:round; }
+.lesson-nav-title{ font-size:13px; font-weight:600; color:var(--charcoal); }
+.lesson-nav-count{ font-size:12px; color:var(--mist); font-weight:500; }
 
-/* ── SCROLLABLE CONTENT ── */
-.scroll-area {
-  flex: 1;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-.scroll-area::-webkit-scrollbar { display: none; }
+.read-progress{ height:3px; background:var(--stone); position:relative; flex-shrink:0; }
+.read-progress-fill{ position:absolute; left:0; top:0; height:100%; background:var(--gold); width:0; border-radius:2px; transition:width .4s ease; }
 
-/* ── TAB BAR ── */
-.tab-bar {
-  height: 83px;
-  background: rgba(253,251,248,0.95);
-  backdrop-filter: blur(20px);
-  border-top: 1px solid var(--stone);
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-around;
-  padding: 10px 0 0;
-  padding-bottom: calc(10px + var(--safe-bottom));
-  flex-shrink: 0;
-  z-index: 50;
-}
-.tab-item {
-  display: flex; flex-direction: column; align-items: center; gap: 4px;
-  cursor: pointer; padding: 0 12px; flex: 1;
-  transition: opacity 0.2s;
-}
-.tab-item:active { opacity: 0.6; }
-.tab-icon {
-  width: 28px; height: 28px;
-  display: flex; align-items: center; justify-content: center;
-  border-radius: 8px;
-  transition: background 0.2s;
-}
-.tab-icon svg { width: 22px; height: 22px; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; fill: none; }
-.tab-label { font-size: 10px; font-weight: 500; letter-spacing: 0.02em; }
-.tab-item.active .tab-icon { background: var(--sapphire-pale); }
-.tab-item.active .tab-icon svg { stroke: var(--sapphire); }
-.tab-item.active .tab-label { color: var(--sapphire); font-weight: 600; }
-.tab-item:not(.active) .tab-icon svg { stroke: var(--mist); }
-.tab-item:not(.active) .tab-label { color: var(--mist); }
+.lesson-content{ padding:24px 22px 16px; }
+.lesson-content h2{ font-family:'Playfair Display',serif; font-size:24px; font-weight:700; color:var(--charcoal); line-height:1.28; margin-bottom:16px; }
+.lesson-eyebrow{ font-size:11px; font-weight:700; color:var(--gold); text-transform:uppercase; letter-spacing:.12em; margin-bottom:8px; }
+.lesson-read-meta{ display:flex; align-items:center; gap:12px; margin-bottom:20px; }
+.read-meta-item{ display:flex; align-items:center; gap:4px; font-size:11.5px; color:var(--mist); }
+.read-meta-item svg{ width:13px; height:13px; stroke:var(--mist); fill:none; stroke-width:2; stroke-linecap:round; }
 
-/* ══════════════════════════════════════════ */
-/*  SCREEN 1 — HOME / LEARN DASHBOARD        */
-/* ══════════════════════════════════════════ */
-#screen-home { background: var(--warm-white); }
+.pullquote{ border-left:3px solid var(--gold); padding:12px 16px; background:var(--gold-pale); border-radius:0 12px 12px 0; margin:20px 0; }
+.pullquote p{ font-family:'Source Serif 4',serif; font-size:15px; font-style:italic; color:var(--charcoal); line-height:1.65; }
 
-.home-header {
-  background: linear-gradient(160deg, var(--sapphire-deep) 0%, var(--sapphire) 100%);
-  padding: 58px 22px 28px;
-  position: relative;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-.home-header::before {
-  content: '';
-  position: absolute; inset: 0;
-  background: radial-gradient(ellipse at 80% 30%, rgba(184,150,90,0.18) 0%, transparent 60%);
-}
-.home-header::after {
-  content: '';
-  position: absolute; inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.025'%3E%3Cpath d='M0 30 L30 0 L60 30 L30 60 Z'/%3E%3C/g%3E%3C/svg%3E");
-}
+.lesson-prose{ font-size:15px; color:var(--slate); line-height:1.78; }
+.lesson-prose p{ margin-bottom:16px; }
+.lesson-prose strong{ color:var(--charcoal); font-weight:600; }
 
-.header-logo { height: 38px; width: auto; position: relative; z-index: 1; margin-bottom: 20px; }
+.insight-box{ background:var(--sapphire-pale); border:1px solid var(--sapphire-light); border-radius:14px; padding:16px 18px; margin:20px 0; }
+.insight-label{ font-size:10px; font-weight:700; color:var(--sapphire); text-transform:uppercase; letter-spacing:.1em; margin-bottom:6px; display:flex; align-items:center; gap:5px; }
+.insight-label svg{ width:12px; height:12px; stroke:var(--sapphire); fill:none; stroke-width:2; stroke-linecap:round; }
+.insight-box p{ font-size:13.5px; color:var(--sapphire-deep); line-height:1.65; }
 
-.header-greeting {
-  position: relative; z-index: 1;
-  font-size: 13px; color: rgba(255,255,255,0.65); font-weight: 400; margin-bottom: 3px; letter-spacing: 0.03em;
-}
-.header-name {
-  position: relative; z-index: 1;
-  font-family: 'Playfair Display', serif;
-  font-size: 26px; font-weight: 700; color: white; line-height: 1.15;
-}
-.header-name em { font-style: italic; color: var(--gold-light); }
+.key-term{ display:flex; gap:12px; padding:14px 0; border-bottom:1px solid var(--stone); }
+.key-term-dot{ width:8px; height:8px; border-radius:50%; background:var(--gold); flex-shrink:0; margin-top:6px; }
+.key-term-word{ font-size:14px; font-weight:600; color:var(--charcoal); margin-bottom:3px; }
+.key-term-def{ font-size:13px; color:var(--slate); line-height:1.6; }
 
-/* Progress ring card */
-.progress-card {
-  position: relative; z-index: 1;
-  background: rgba(255,255,255,0.10);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.16);
-  border-radius: 16px;
-  padding: 16px 18px;
-  margin-top: 18px;
-  display: flex; align-items: center; gap: 16px;
+.lesson-footer{ padding:12px 22px 16px; flex-shrink:0; display:flex; gap:10px; background:var(--warm-white); border-top:1px solid var(--stone); }
+.next-btn{
+  flex:1; padding:15px; border-radius:14px; border:none; cursor:pointer;
+  background:var(--sapphire); color:white; font-size:15px; font-weight:600;
+  font-family:'DM Sans',sans-serif; display:flex; align-items:center; justify-content:center; gap:6px;
+  box-shadow:0 6px 18px rgba(27,75,138,.28);
 }
-.progress-ring-wrap { position: relative; flex-shrink: 0; }
-.progress-ring-wrap svg { width: 58px; height: 58px; transform: rotate(-90deg); }
-.ring-bg { fill: none; stroke: rgba(255,255,255,0.15); stroke-width: 5; }
-.ring-fill { fill: none; stroke: var(--gold-light); stroke-width: 5; stroke-linecap: round;
-  stroke-dasharray: 151.6; stroke-dashoffset: 106; transition: stroke-dashoffset 1.2s ease; }
-.ring-label {
-  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 700; color: white; pointer-events: none; transform: rotate(0deg);
+.next-btn svg{ width:16px; height:16px; stroke:white; fill:none; stroke-width:2.2; stroke-linecap:round; }
+.bookmark-btn{
+  width:50px; height:50px; border-radius:14px; border:1px solid var(--stone);
+  background:white; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;
 }
-.progress-info {}
-.progress-title { font-size: 13px; color: rgba(255,255,255,0.70); margin-bottom: 3px; }
-.progress-stat { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 600; color: white; }
-.progress-sub { font-size: 11px; color: rgba(255,255,255,0.52); margin-top: 2px; }
+.bookmark-btn svg{ width:18px; height:18px; stroke:var(--slate); fill:none; stroke-width:1.8; stroke-linecap:round; }
 
-/* Section headers */
-.section-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 22px 12px; }
-.section-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: var(--charcoal); }
-.section-link { font-size: 12px; font-weight: 600; color: var(--sapphire); letter-spacing: 0.03em; cursor: pointer; }
-
-/* Course matrix grid — stacked vertical, 2-column */
-.course-matrix { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 22px 4px; }
-
-.course-card {
-  background: white;
-  border: 1px solid var(--stone);
-  border-radius: 16px; overflow: hidden; cursor: pointer;
-  position: relative;
-  box-shadow: 0 3px 12px rgba(15,47,92,0.08);
-  transition: transform 0.18s, box-shadow 0.18s;
-  -webkit-tap-highlight-color: transparent;
-  display: flex; flex-direction: column;
+/* ─── QUIZ SCREEN ─────────────────────────────────── */
+.quiz-header{ padding:54px 22px 16px; background:var(--warm-white); border-bottom:1px solid var(--stone); flex-shrink:0; }
+.quiz-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.quiz-back{ display:flex; align-items:center; gap:4px; cursor:pointer; font-size:14px; font-weight:500; color:var(--sapphire); }
+.quiz-back svg{ width:18px; height:18px; stroke:var(--sapphire); fill:none; stroke-width:2.2; stroke-linecap:round; }
+.quiz-counter{ font-size:13px; font-weight:600; color:var(--charcoal); }
+.quiz-score{ font-size:12px; color:var(--mist); }
+.q-dots{ display:flex; gap:6px; }
+.q-dot{ height:4px; flex:1; border-radius:2px; background:var(--stone); transition:background .3s; }
+.q-dot.done{ background:var(--sapphire); }
+.q-dot.current{ background:var(--gold); }
+.quiz-body{ padding:24px 22px 16px; }
+.q-category{ font-size:11px; font-weight:700; color:var(--gold); text-transform:uppercase; letter-spacing:.12em; margin-bottom:10px; }
+.quiz-body h2{ font-family:'Playfair Display',serif; font-size:20px; font-weight:700; color:var(--charcoal); line-height:1.35; margin-bottom:22px; }
+.answer-options{ display:flex; flex-direction:column; gap:10px; }
+.answer-opt{
+  padding:14px 16px; border-radius:14px; border:1.5px solid var(--stone);
+  background:white; cursor:pointer; display:flex; align-items:center; gap:12px;
+  transition:border-color .2s,background .2s;
 }
-.course-card:active { transform: scale(0.96); box-shadow: 0 6px 20px rgba(15,47,92,0.16); }
-
-/* Coloured accent bar at top */
-.course-card-accent { height: 4px; width: 100%; flex-shrink: 0; }
-
-.course-card-body { padding: 12px 12px 14px; flex: 1; display: flex; flex-direction: column; }
-
-.course-status-pill {
-  display: inline-flex; align-items: center; gap: 4px;
-  font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
-  padding: 3px 8px; border-radius: 100px; margin-bottom: 8px; align-self: flex-start;
+.answer-opt.correct{ border-color:#22c55e; background:#f0fdf4; }
+.answer-opt.wrong{ border-color:#ef4444; background:#fef2f2; }
+.opt-letter{ width:30px; height:30px; border-radius:50%; border:1.5px solid var(--stone); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:var(--slate); flex-shrink:0; transition:all .2s; }
+.answer-opt.correct .opt-letter{ border-color:#22c55e; background:#22c55e; color:white; }
+.answer-opt.wrong .opt-letter{ border-color:#ef4444; background:#ef4444; color:white; }
+.opt-text{ font-size:14px; color:var(--charcoal); line-height:1.45; flex:1; }
+.feedback-banner{ margin:16px 0 0; padding:14px 16px; border-radius:14px; display:none; align-items:flex-start; gap:10px; }
+.feedback-banner.show{ display:flex; }
+.feedback-banner.correct-fb{ background:#f0fdf4; border:1px solid #86efac; }
+.feedback-banner.wrong-fb{ background:#fef2f2; border:1px solid #fca5a5; }
+.feedback-text strong{ display:block; font-size:13.5px; font-weight:700; margin-bottom:3px; }
+.correct-fb .feedback-text strong{ color:#16a34a; }
+.wrong-fb .feedback-text strong{ color:#dc2626; }
+.feedback-text p{ font-size:12.5px; color:var(--slate); line-height:1.55; }
+.quiz-next-btn{
+  margin:20px 22px 0; width:calc(100% - 44px); padding:15px; border-radius:14px;
+  border:none; cursor:pointer; background:var(--sapphire); color:white;
+  font-size:15px; font-weight:600; font-family:'DM Sans',sans-serif;
+  display:none; align-items:center; justify-content:center; gap:6px;
+  box-shadow:0 6px 18px rgba(27,75,138,.28);
 }
-.pill-progress  { background: rgba(27,75,138,0.10); color: var(--sapphire); }
-.pill-new       { background: rgba(184,150,90,0.14); color: var(--gold); }
-.pill-locked    { background: var(--stone); color: var(--mist); }
-.pill-done      { background: rgba(34,197,94,0.12); color: #16a34a; }
+.quiz-next-btn.show{ display:flex; }
 
-.course-card h4 {
-  font-family: 'Playfair Display', serif;
-  font-size: 13px; font-weight: 700; color: var(--charcoal);
-  line-height: 1.35; margin-bottom: 6px; flex: 1;
+/* ─── PROFILE SCREEN ──────────────────────────────── */
+.profile-header{
+  background:linear-gradient(155deg,var(--sapphire-deep) 0%,var(--sapphire) 100%);
+  padding:54px 22px 28px; position:relative; overflow:hidden; flex-shrink:0;
 }
+.profile-header::before{ content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 70% 30%,rgba(184,150,90,.14) 0%,transparent 55%); }
+.profile-avatar{ position:relative; z-index:1; width:68px; height:68px; border-radius:50%; background:rgba(255,255,255,.15); border:2px solid rgba(255,255,255,.30); display:flex; align-items:center; justify-content:center; margin-bottom:12px; }
+.profile-avatar svg{ width:32px; height:32px; stroke:white; fill:none; stroke-width:1.5; stroke-linecap:round; }
+.profile-name{ position:relative; z-index:1; font-family:'Playfair Display',serif; font-size:22px; font-weight:700; color:white; margin-bottom:3px; }
+.profile-subtitle{ position:relative; z-index:1; font-size:13px; color:rgba(255,255,255,.65); }
+.profile-stats-row{ position:relative; z-index:1; display:flex; margin-top:20px; background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.16); border-radius:14px; overflow:hidden; }
+.pstat{ flex:1; padding:12px 0; text-align:center; }
+.pstat + .pstat{ border-left:1px solid rgba(255,255,255,.14); }
+.pstat-num{ font-family:'Playfair Display',serif; font-size:22px; font-weight:700; color:white; line-height:1; margin-bottom:3px; }
+.pstat-label{ font-size:10px; color:rgba(255,255,255,.58); text-transform:uppercase; letter-spacing:.08em; font-weight:500; }
+.badge-row{ display:flex; gap:10px; padding:0 22px 4px; overflow-x:auto; scrollbar-width:none; }
+.badge-row::-webkit-scrollbar{ display:none; }
+.badge-item{ flex-shrink:0; display:flex; flex-direction:column; align-items:center; gap:6px; }
+.badge-circle{ width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid transparent; }
+.badge-circle.earned{ background:linear-gradient(135deg,var(--sapphire-pale),white); border-color:var(--sapphire-light); }
+.badge-circle.locked{ background:var(--stone); opacity:.5; }
+.badge-circle svg{ width:26px; height:26px; fill:none; stroke-width:1.6; stroke-linecap:round; }
+.badge-circle.earned svg{ stroke:var(--sapphire); }
+.badge-circle.locked svg{ stroke:var(--mist); }
+.badge-name{ font-size:10px; font-weight:600; color:var(--slate); text-align:center; max-width:56px; line-height:1.3; }
+.profile-menu{ padding:8px 22px 8px; }
+.menu-item{ display:flex; align-items:center; gap:14px; padding:14px 16px; background:white; border:1px solid var(--stone); border-radius:14px; margin-bottom:10px; cursor:pointer; }
+.menu-item:active{ background:var(--sapphire-pale); }
+.menu-icon{ width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; }
+.menu-icon svg{ width:18px; height:18px; fill:none; stroke-width:1.7; stroke-linecap:round; }
+.menu-text{ flex:1; }
+.menu-text strong{ display:block; font-size:14px; font-weight:600; color:var(--charcoal); }
+.menu-text span{ font-size:11.5px; color:var(--mist); }
+.menu-arrow svg{ width:14px; height:14px; stroke:var(--mist); fill:none; stroke-width:2; stroke-linecap:round; }
 
-.course-card-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
-.course-card-stat { font-size: 10px; color: var(--mist); display: flex; align-items: center; gap: 3px; }
-.course-card-stat svg { width: 10px; height: 10px; stroke: var(--mist); fill: none; stroke-width: 2; stroke-linecap: round; }
-
-/* Mini progress bar inside card */
-.card-prog-wrap { margin-top: 8px; }
-.card-prog-bar { height: 3px; background: var(--stone); border-radius: 2px; overflow: hidden; }
-.card-prog-fill { height: 100%; border-radius: 2px; transition: width 1s ease; }
-
-/* Arrow chevron */
-.course-card-arrow {
-  position: absolute; bottom: 12px; right: 12px;
-  width: 22px; height: 22px; border-radius: 50%;
-  background: var(--sapphire-pale);
-  display: flex; align-items: center; justify-content: center;
-}
-.course-card-arrow svg { width: 10px; height: 10px; stroke: var(--sapphire); fill: none; stroke-width: 2.5; stroke-linecap: round; }
-
-/* (horizontal course scroll removed — replaced by course-matrix) */
-
-/* Quick lesson tiles */
-.quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 22px 8px; }
-.quick-tile {
-  background: white; border: 1px solid var(--stone); border-radius: 14px; padding: 16px 14px;
-  cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
-  position: relative; overflow: hidden;
-}
-.quick-tile:active { transform: scale(0.96); box-shadow: 0 4px 16px var(--shadow); }
-.quick-tile-icon {
-  width: 38px; height: 38px; border-radius: 10px; background: var(--sapphire-pale);
-  display: flex; align-items: center; justify-content: center; margin-bottom: 10px;
-}
-.quick-tile-icon svg { width: 20px; height: 20px; stroke: var(--sapphire); fill: none; stroke-width: 1.6; stroke-linecap: round; }
-.quick-tile h4 { font-size: 12.5px; font-weight: 600; color: var(--charcoal); line-height: 1.35; margin-bottom: 4px; }
-.quick-tile p { font-size: 10.5px; color: var(--mist); line-height: 1.5; }
-.quick-tile-badge {
-  position: absolute; top: 10px; right: 10px;
-  background: var(--gold-pale); color: var(--gold);
-  font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 100px; letter-spacing: 0.05em;
-}
-
-/* Daily tip card */
-.daily-tip {
-  margin: 4px 22px 20px;
-  background: var(--gold-pale);
-  border: 1px solid rgba(184,150,90,0.22);
-  border-radius: 16px; padding: 16px 18px;
-  display: flex; gap: 14px; align-items: flex-start;
-  cursor: pointer;
-}
-.tip-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--gold); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.tip-icon svg { width: 18px; height: 18px; stroke: white; fill: none; stroke-width: 1.8; stroke-linecap: round; }
-.tip-label { font-size: 10px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
-.tip-text { font-family: 'Source Serif 4', serif; font-size: 13px; font-style: italic; color: var(--charcoal); line-height: 1.55; }
-
-
-/* ══════════════════════════════════════════ */
-/*  SCREEN 2 — COURSE DETAIL                 */
-/* ══════════════════════════════════════════ */
-#screen-course { background: var(--warm-white); }
-
-.course-hero {
-  background: linear-gradient(155deg, var(--sapphire-deep) 0%, var(--sapphire) 100%);
-  padding: 54px 22px 24px;
-  position: relative; overflow: hidden;
-  flex-shrink: 0;
-}
-.course-hero::before {
-  content: ''; position: absolute; inset: 0;
-  background: radial-gradient(ellipse at 75% 25%, rgba(184,150,90,0.16) 0%, transparent 55%);
-}
-.back-btn {
-  position: relative; z-index: 2;
-  display: inline-flex; align-items: center; gap: 5px;
-  background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.18);
-  color: white; font-size: 13px; font-weight: 500;
-  padding: 6px 14px 6px 10px; border-radius: 100px;
-  cursor: pointer; margin-bottom: 18px;
-  transition: background 0.2s;
-}
-.back-btn:active { background: rgba(255,255,255,0.2); }
-.back-btn svg { width: 14px; height: 14px; stroke: white; fill: none; stroke-width: 2.2; stroke-linecap: round; }
-
-.course-tag-row { display: flex; gap: 8px; margin-bottom: 12px; position: relative; z-index: 1; }
-.ctag {
-  background: rgba(184,150,90,0.25); color: var(--gold-light);
-  font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-  padding: 4px 10px; border-radius: 100px;
-}
-
-.course-hero h2 {
-  position: relative; z-index: 1;
-  font-family: 'Playfair Display', serif;
-  font-size: 22px; font-weight: 700; color: white; line-height: 1.3; margin-bottom: 10px;
-}
-.course-hero-sub {
-  position: relative; z-index: 1;
-  font-size: 13px; color: rgba(255,255,255,0.70); line-height: 1.6; margin-bottom: 18px;
-}
-.course-stats-row {
-  position: relative; z-index: 1;
-  display: flex; gap: 18px;
-}
-.cstat { display: flex; align-items: center; gap: 5px; font-size: 12px; color: rgba(255,255,255,0.65); }
-.cstat svg { width: 13px; height: 13px; stroke: rgba(255,255,255,0.5); fill: none; stroke-width: 2; stroke-linecap: round; }
-
-/* Course progress bar */
-.course-prog-wrap { padding: 16px 22px 0; flex-shrink: 0; }
-.course-prog-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--slate); margin-bottom: 6px; font-weight: 500; }
-.course-prog-bar { height: 6px; background: var(--stone); border-radius: 3px; overflow: hidden; }
-.course-prog-fill { height: 100%; background: linear-gradient(90deg, var(--sapphire), var(--sapphire-mid)); border-radius: 3px; width: 30%; transition: width 1s ease; }
-
-/* Lesson list */
-.lesson-list { padding: 16px 22px 8px; }
-.lesson-section-label {
-  font-size: 11px; font-weight: 700; color: var(--mist); text-transform: uppercase; letter-spacing: 0.12em;
-  margin-bottom: 10px; margin-top: 18px;
-}
-.lesson-item {
-  display: flex; align-items: center; gap: 14px;
-  padding: 14px 16px; background: white; border: 1px solid var(--stone);
-  border-radius: 14px; margin-bottom: 10px; cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
-}
-.lesson-item:active { transform: scale(0.98); box-shadow: 0 4px 16px var(--shadow); }
-.lesson-item.active-lesson { border-color: var(--sapphire-light); background: var(--sapphire-pale); }
-.lesson-num {
-  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700;
-}
-.lesson-num.done { background: var(--sapphire); color: white; }
-.lesson-num.current { background: var(--sapphire-pale); color: var(--sapphire); border: 2px solid var(--sapphire-light); }
-.lesson-num.locked { background: var(--stone); color: var(--mist); }
-.lesson-info { flex: 1; }
-.lesson-info h4 { font-size: 14px; font-weight: 600; color: var(--charcoal); margin-bottom: 2px; }
-.lesson-info span { font-size: 11.5px; color: var(--mist); }
-.lesson-arrow svg { width: 14px; height: 14px; stroke: var(--mist); fill: none; stroke-width: 2; stroke-linecap: round; }
-.lesson-check svg { width: 16px; height: 16px; stroke: white; fill: none; stroke-width: 2.5; stroke-linecap: round; }
-
-/* Start button */
-.start-btn-wrap { padding: 16px 22px; flex-shrink: 0; }
-.start-btn {
-  width: 100%; padding: 16px; border-radius: 14px; border: none; cursor: pointer;
-  background: linear-gradient(135deg, var(--sapphire) 0%, var(--sapphire-mid) 100%);
-  color: white; font-size: 16px; font-weight: 600; font-family: 'DM Sans', sans-serif;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  box-shadow: 0 6px 20px rgba(27,75,138,0.35);
-  transition: transform 0.15s, box-shadow 0.15s;
-}
-.start-btn:active { transform: scale(0.98); box-shadow: 0 3px 10px rgba(27,75,138,0.25); }
-.start-btn svg { width: 18px; height: 18px; stroke: white; fill: none; stroke-width: 2; stroke-linecap: round; }
-
-/* ══════════════════════════════════════════ */
-/*  SCREEN 3 — LESSON / READER               */
-/* ══════════════════════════════════════════ */
-#screen-lesson { background: var(--warm-white); }
-
-.lesson-nav {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 54px 22px 14px;
-  background: var(--warm-white);
-  border-bottom: 1px solid var(--stone);
-  flex-shrink: 0;
-}
-.lesson-nav-back {
-  display: flex; align-items: center; gap: 4px; cursor: pointer;
-  font-size: 14px; font-weight: 500; color: var(--sapphire);
-}
-.lesson-nav-back svg { width: 18px; height: 18px; stroke: var(--sapphire); fill: none; stroke-width: 2.2; stroke-linecap: round; }
-.lesson-nav-title { font-size: 13px; font-weight: 600; color: var(--charcoal); }
-.lesson-nav-count { font-size: 12px; color: var(--mist); font-weight: 500; }
-
-/* Lesson reading progress */
-.read-progress { height: 3px; background: var(--stone); position: relative; flex-shrink: 0; }
-.read-progress-fill { position: absolute; left: 0; top: 0; height: 100%; background: var(--gold); width: 0; border-radius: 2px; transition: width 0.4s ease; }
-
-/* Lesson content */
-.lesson-content { padding: 24px 22px 16px; }
-.lesson-eyebrow { font-size: 11px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 8px; }
-.lesson-content h2 { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; color: var(--charcoal); line-height: 1.28; margin-bottom: 16px; }
-.lesson-read-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
-.read-meta-item { display: flex; align-items: center; gap: 4px; font-size: 11.5px; color: var(--mist); }
-.read-meta-item svg { width: 13px; height: 13px; stroke: var(--mist); fill: none; stroke-width: 2; stroke-linecap: round; }
-
-/* Pullquote */
-.pullquote {
-  border-left: 3px solid var(--gold);
-  padding: 12px 16px;
-  background: var(--gold-pale);
-  border-radius: 0 12px 12px 0;
-  margin: 20px 0;
-}
-.pullquote p {
-  font-family: 'Source Serif 4', serif;
-  font-size: 15px; font-style: italic; color: var(--charcoal); line-height: 1.65;
-}
-
-/* Body prose */
-.lesson-prose { font-size: 15px; color: var(--slate); line-height: 1.78; }
-.lesson-prose p { margin-bottom: 16px; }
-.lesson-prose strong { color: var(--charcoal); font-weight: 600; }
-
-/* Insight box */
-.insight-box {
-  background: var(--sapphire-pale); border: 1px solid var(--sapphire-light);
-  border-radius: 14px; padding: 16px 18px; margin: 20px 0;
-}
-.insight-label { font-size: 10px; font-weight: 700; color: var(--sapphire); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
-.insight-label svg { width: 12px; height: 12px; stroke: var(--sapphire); fill: none; stroke-width: 2; stroke-linecap: round; }
-.insight-box p { font-size: 13.5px; color: var(--sapphire-deep); line-height: 1.65; }
-
-/* Key terms */
-.key-term {
-  display: flex; gap: 12px; padding: 14px 0;
-  border-bottom: 1px solid var(--stone);
-}
-.key-term-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); flex-shrink: 0; margin-top: 6px; }
-.key-term-word { font-size: 14px; font-weight: 600; color: var(--charcoal); margin-bottom: 3px; }
-.key-term-def { font-size: 13px; color: var(--slate); line-height: 1.6; }
-
-/* Quiz CTA card */
-.quiz-cta {
-  margin: 20px 0 28px;
-  background: linear-gradient(135deg, var(--sapphire-deep) 0%, var(--sapphire) 100%);
-  border-radius: 18px; padding: 20px 20px;
-  position: relative; overflow: hidden; cursor: pointer;
-}
-.quiz-cta::before {
-  content: ''; position: absolute; inset: 0;
-  background: radial-gradient(ellipse at 85% 30%, rgba(184,150,90,0.2) 0%, transparent 55%);
-}
-.quiz-cta-inner { position: relative; }
-.quiz-cta h3 { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: white; margin-bottom: 6px; }
-.quiz-cta p { font-size: 13px; color: rgba(255,255,255,0.72); line-height: 1.55; margin-bottom: 14px; }
-.quiz-btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  background: var(--gold); color: white;
-  font-size: 14px; font-weight: 600; padding: 10px 18px; border-radius: 10px;
-  box-shadow: 0 4px 14px rgba(184,150,90,0.4); cursor: pointer;
-  border: none; font-family: 'DM Sans', sans-serif;
-  transition: background 0.2s;
-}
-.quiz-btn svg { width: 14px; height: 14px; stroke: white; fill: none; stroke-width: 2; stroke-linecap: round; }
-
-/* Next lesson footer */
-.lesson-footer { padding: 0 22px 16px; flex-shrink: 0; display: flex; gap: 10px; }
-.next-btn {
-  flex: 1; padding: 15px; border-radius: 14px; border: none; cursor: pointer;
-  background: var(--sapphire); color: white; font-size: 15px; font-weight: 600;
-  font-family: 'DM Sans', sans-serif; display: flex; align-items: center; justify-content: center; gap: 6px;
-  box-shadow: 0 6px 18px rgba(27,75,138,0.28);
-}
-.next-btn svg { width: 16px; height: 16px; stroke: white; fill: none; stroke-width: 2.2; stroke-linecap: round; }
-.bookmark-btn {
-  width: 50px; height: 50px; border-radius: 14px; border: 1px solid var(--stone);
-  background: white; cursor: pointer; display: flex; align-items: center; justify-content: center;
-}
-.bookmark-btn svg { width: 18px; height: 18px; stroke: var(--slate); fill: none; stroke-width: 1.8; stroke-linecap: round; }
-
-/* ══════════════════════════════════════════ */
-/*  SCREEN 4 — QUIZ                          */
-/* ══════════════════════════════════════════ */
-#screen-quiz { background: var(--warm-white); }
-
-.quiz-header {
-  padding: 54px 22px 16px;
-  background: var(--warm-white);
-  border-bottom: 1px solid var(--stone);
-  flex-shrink: 0;
-}
-.quiz-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-.quiz-back { display: flex; align-items: center; gap: 4px; cursor: pointer; font-size: 14px; font-weight: 500; color: var(--sapphire); }
-.quiz-back svg { width: 18px; height: 18px; stroke: var(--sapphire); fill: none; stroke-width: 2.2; stroke-linecap: round; }
-.quiz-counter { font-size: 13px; font-weight: 600; color: var(--charcoal); }
-.quiz-score { font-size: 12px; color: var(--mist); }
-/* Question progress dots */
-.q-dots { display: flex; gap: 6px; }
-.q-dot { height: 4px; flex: 1; border-radius: 2px; background: var(--stone); transition: background 0.3s; }
-.q-dot.done { background: var(--sapphire); }
-.q-dot.current { background: var(--gold); }
-
-.quiz-body { padding: 24px 22px 16px; }
-.q-category { font-size: 11px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 10px; }
-.quiz-body h2 { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--charcoal); line-height: 1.35; margin-bottom: 22px; }
-
-/* Answer options */
-.answer-options { display: flex; flex-direction: column; gap: 10px; }
-.answer-opt {
-  padding: 14px 16px; border-radius: 14px; border: 1.5px solid var(--stone);
-  background: white; cursor: pointer; display: flex; align-items: center; gap: 12px;
-  transition: border-color 0.2s, background 0.2s, transform 0.15s;
-}
-.answer-opt:active { transform: scale(0.98); }
-.answer-opt.selected { border-color: var(--sapphire); background: var(--sapphire-pale); }
-.answer-opt.correct { border-color: #22c55e; background: #f0fdf4; }
-.answer-opt.wrong { border-color: #ef4444; background: #fef2f2; }
-.opt-letter {
-  width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid var(--stone);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 700; color: var(--slate); flex-shrink: 0;
-  transition: all 0.2s;
-}
-.answer-opt.selected .opt-letter { border-color: var(--sapphire); background: var(--sapphire); color: white; }
-.answer-opt.correct .opt-letter { border-color: #22c55e; background: #22c55e; color: white; }
-.answer-opt.wrong .opt-letter { border-color: #ef4444; background: #ef4444; color: white; }
-.opt-text { font-size: 14px; color: var(--charcoal); line-height: 1.45; flex: 1; }
-
-/* Feedback banner */
-.feedback-banner {
-  margin: 16px 0 0; padding: 14px 16px; border-radius: 14px;
-  display: none; align-items: flex-start; gap: 10px;
-}
-.feedback-banner.show { display: flex; }
-.feedback-banner.correct-fb { background: #f0fdf4; border: 1px solid #86efac; }
-.feedback-banner.wrong-fb { background: #fef2f2; border: 1px solid #fca5a5; }
-.feedback-banner svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; fill: none; stroke-width: 2.2; stroke-linecap: round; }
-.correct-fb svg { stroke: #22c55e; }
-.wrong-fb svg { stroke: #ef4444; }
-.feedback-text strong { display: block; font-size: 13.5px; font-weight: 700; margin-bottom: 3px; }
-.correct-fb .feedback-text strong { color: #16a34a; }
-.wrong-fb .feedback-text strong { color: #dc2626; }
-.feedback-text p { font-size: 12.5px; color: var(--slate); line-height: 1.55; }
-
-.quiz-next-btn {
-  margin: 20px 22px 0; width: calc(100% - 44px); padding: 15px; border-radius: 14px;
-  border: none; cursor: pointer; background: var(--sapphire); color: white;
-  font-size: 15px; font-weight: 600; font-family: 'DM Sans', sans-serif;
-  display: none; align-items: center; justify-content: center; gap: 6px;
-  box-shadow: 0 6px 18px rgba(27,75,138,0.28);
-}
-.quiz-next-btn.show { display: flex; }
-.quiz-next-btn svg { width: 16px; height: 16px; stroke: white; fill: none; stroke-width: 2.2; stroke-linecap: round; }
-
-/* ══════════════════════════════════════════ */
-/*  SCREEN 5 — PROFILE / PROGRESS            */
-/* ══════════════════════════════════════════ */
-#screen-profile { background: var(--warm-white); }
-
-.profile-header {
-  background: linear-gradient(155deg, var(--sapphire-deep) 0%, var(--sapphire) 100%);
-  padding: 54px 22px 28px; position: relative; overflow: hidden; flex-shrink: 0;
-}
-.profile-header::before {
-  content: ''; position: absolute; inset: 0;
-  background: radial-gradient(ellipse at 70% 30%, rgba(184,150,90,0.14) 0%, transparent 55%);
-}
-.profile-avatar {
-  position: relative; z-index: 1;
-  width: 68px; height: 68px; border-radius: 50%;
-  background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.30);
-  display: flex; align-items: center; justify-content: center; margin-bottom: 12px;
-}
-.profile-avatar svg { width: 32px; height: 32px; stroke: white; fill: none; stroke-width: 1.5; stroke-linecap: round; }
-.profile-name { position: relative; z-index: 1; font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: white; margin-bottom: 3px; }
-.profile-subtitle { position: relative; z-index: 1; font-size: 13px; color: rgba(255,255,255,0.65); }
-
-.profile-stats-row {
-  position: relative; z-index: 1; display: flex; gap: 0; margin-top: 20px;
-  background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.16);
-  border-radius: 14px; overflow: hidden;
-}
-.pstat { flex: 1; padding: 12px 0; text-align: center; }
-.pstat + .pstat { border-left: 1px solid rgba(255,255,255,0.14); }
-.pstat-num { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: white; line-height: 1; margin-bottom: 3px; }
-.pstat-num em { font-size: 14px; font-style: normal; }
-.pstat-label { font-size: 10px; color: rgba(255,255,255,0.58); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 500; }
-
-/* Achievement badges */
-.badge-row { display: flex; gap: 10px; padding: 0 22px 4px; overflow-x: auto; scrollbar-width: none; }
-.badge-row::-webkit-scrollbar { display: none; }
-.badge-item { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-.badge-circle {
-  width: 56px; height: 56px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  border: 2px solid transparent;
-}
-.badge-circle.earned { background: linear-gradient(135deg, var(--sapphire-pale), white); border-color: var(--sapphire-light); }
-.badge-circle.locked { background: var(--stone); opacity: 0.5; }
-.badge-circle svg { width: 26px; height: 26px; fill: none; stroke-width: 1.6; stroke-linecap: round; }
-.badge-circle.earned svg { stroke: var(--sapphire); }
-.badge-circle.locked svg { stroke: var(--mist); }
-.badge-name { font-size: 10px; font-weight: 600; color: var(--slate); text-align: center; max-width: 56px; line-height: 1.3; }
-
-/* Settings/links */
-.profile-menu { padding: 8px 22px 8px; }
-.menu-item {
-  display: flex; align-items: center; gap: 14px;
-  padding: 14px 16px; background: white; border: 1px solid var(--stone);
-  border-radius: 14px; margin-bottom: 10px; cursor: pointer;
-  transition: background 0.15s;
-}
-.menu-item:active { background: var(--sapphire-pale); }
-.menu-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
-.menu-icon svg { width: 18px; height: 18px; fill: none; stroke-width: 1.7; stroke-linecap: round; }
-.menu-text { flex: 1; }
-.menu-text strong { display: block; font-size: 14px; font-weight: 600; color: var(--charcoal); }
-.menu-text span { font-size: 11.5px; color: var(--mist); }
-.menu-arrow svg { width: 14px; height: 14px; stroke: var(--mist); fill: none; stroke-width: 2; stroke-linecap: round; }
-
-/* ── ANIMATIONS ── */
-@keyframes fadeSlideUp {
-  from { opacity: 0; transform: translateY(18px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.anim-1 { animation: fadeSlideUp 0.5s 0.1s both; }
-.anim-2 { animation: fadeSlideUp 0.5s 0.2s both; }
-.anim-3 { animation: fadeSlideUp 0.5s 0.3s both; }
-.anim-4 { animation: fadeSlideUp 0.5s 0.4s both; }
-
-/* Desktop wrapper label */
-.device-label {
-  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-  font-family: 'DM Sans', sans-serif; font-size: 12px; color: rgba(255,255,255,0.35);
-  letter-spacing: 0.08em; text-transform: uppercase; pointer-events: none;
-  white-space: nowrap;
+.device-label{
+  position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+  font-family:'DM Sans',sans-serif; font-size:12px; color:rgba(255,255,255,.35);
+  letter-spacing:.08em; text-transform:uppercase; pointer-events:none; white-space:nowrap;
 }
 </style>
 </head>
@@ -702,1149 +415,641 @@ body {
 <div class="phone-outer">
   <div class="phone-screen">
     <div class="dynamic-island"></div>
-
-    <!-- STATUS BAR -->
     <div class="status-bar" id="statusBar">
-      <span style="font-size:13px;font-weight:700;">9:41</span>
+      <span style="font-size:13px;font-weight:700">9:41</span>
       <div class="status-icons">
-        <!-- Signal -->
-        <svg viewBox="0 0 17 12" fill="currentColor"><rect x="0" y="6" width="3" height="6" rx="0.5"/><rect x="4.5" y="4" width="3" height="8" rx="0.5"/><rect x="9" y="2" width="3" height="10" rx="0.5"/><rect x="13.5" y="0" width="3" height="12" rx="0.5"/></svg>
-        <!-- WiFi -->
-        <svg viewBox="0 0 16 12" fill="currentColor"><path d="M8 9.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"/><path d="M8 6C6.1 6 4.4 6.8 3.2 8l1.4 1.4C5.5 8.5 6.7 8 8 8s2.5.5 3.4 1.4L12.8 8C11.6 6.8 9.9 6 8 6z"/><path d="M8 2C5 2 2.3 3.2.4 5.2l1.4 1.4C3.4 5 5.6 4 8 4s4.6 1 6.2 2.6L15.6 5.2C13.7 3.2 11 2 8 2z"/></svg>
-        <!-- Battery -->
-        <svg viewBox="0 0 25 12" fill="currentColor"><rect x="0" y="1" width="21" height="10" rx="2.5" stroke="currentColor" stroke-width="1" fill="none"/><rect x="22" y="4" width="2" height="4" rx="1"/><rect x="1.5" y="2.5" width="16" height="7" rx="1.5"/></svg>
+        <svg viewBox="0 0 17 12" width="17" height="12" fill="currentColor"><rect x="0" y="6" width="3" height="6" rx=".5"/><rect x="4.5" y="4" width="3" height="8" rx=".5"/><rect x="9" y="2" width="3" height="10" rx=".5"/><rect x="13.5" y="0" width="3" height="12" rx=".5"/></svg>
+        <svg viewBox="0 0 16 12" width="16" height="12" fill="currentColor"><path d="M8 9.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3zM8 6C6.1 6 4.4 6.8 3.2 8l1.4 1.4C5.5 8.5 6.7 8 8 8s2.5.5 3.4 1.4L12.8 8C11.6 6.8 9.9 6 8 6zM8 2C5 2 2.3 3.2.4 5.2l1.4 1.4C3.4 5 5.6 4 8 4s4.6 1 6.2 2.6L15.6 5.2C13.7 3.2 11 2 8 2z"/></svg>
+        <svg viewBox="0 0 25 12" width="25" height="12" fill="currentColor"><rect x="0" y="1" width="21" height="10" rx="2.5" stroke="currentColor" stroke-width="1" fill="none"/><rect x="22" y="4" width="2" height="4" rx="1"/><rect x="1.5" y="2.5" width="16" height="7" rx="1.5"/></svg>
       </div>
     </div>
 
     <div class="app">
 
-    <!-- ══════════════════════════════════════════ -->
-    <!-- SCREEN 1 — HOME                           -->
-    <!-- ══════════════════════════════════════════ -->
-    <div class="screen" id="screen-home">
-      <div class="scroll-area">
-        <!-- Header -->
-        <div class="home-header">
-          <img class="header-logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2MzAgMTI0IiB3aWR0aD0iNjMwIiBoZWlnaHQ9IjEyNCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJTYXBwaGlyZSBXZWFsdGggTWFuYWdlbWVudCBMTEMgLSBDZWxlYnJhdGluZyAyMCBZZWFycyI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImdvbGRHcmFkIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiICAgc3RvcC1jb2xvcj0iI0NEQTk2QSIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjM1JSIgIHN0b3AtY29sb3I9IiNCODk2NUEiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjOEM2QjM4Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJuYXZ5R3JhZCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiICAgc3RvcC1jb2xvcj0iIzBFMkY2QiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMwQTIyNTUiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InJlZEdyYWQiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiAgIHN0b3AtY29sb3I9IiNCRTFFMjQiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSI2MCUiICBzdG9wLWNvbG9yPSIjQTMxODFEIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzhCMTExOCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ic2FwcGhpcmVHcmFkIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiICAgc3RvcC1jb2xvcj0iIzFDM0Y4QSIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjUwJSIgIHN0b3AtY29sb3I9IiMwRTJENzgiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMEIyNDY4Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdFNoYWRvdyIgeD0iLTUlIiB5PSItMTAlIiB3aWR0aD0iMTE1JSIgaGVpZ2h0PSIxMzAlIj4KICAgICAgPGZlRHJvcFNoYWRvdyBkeD0iMCIgZHk9IjEuNSIgc3RkRGV2aWF0aW9uPSIxIiBmbG9vZC1jb2xvcj0iIzAwMDAyMiIgZmxvb2Qtb3BhY2l0eT0iMC4yMiIvPgogICAgPC9maWx0ZXI+CiAgICA8ZmlsdGVyIGlkPSJiYWRnZVNoYWRvdyIgeD0iLTUlIiB5PSItNSUiIHdpZHRoPSIxMTUlIiBoZWlnaHQ9IjEyMCUiPgogICAgICA8ZmVEcm9wU2hhZG93IGR4PSIxIiBkeT0iMiIgc3RkRGV2aWF0aW9uPSIyIiBmbG9vZC1jb2xvcj0iIzAwMDAwMCIgZmxvb2Qtb3BhY2l0eT0iMC4zMCIvPgogICAgPC9maWx0ZXI+CiAgPC9kZWZzPgoKICA8IS0tIOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkCAtLT4KICA8IS0tIE5BVlkgQkFER0UgQkxPQ0sgICAgICAgICAgICAgICAgICAtLT4KICA8IS0tIOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkCAtLT4KICA8cmVjdCB4PSIxIiB5PSIxIiB3aWR0aD0iMTMzIiBoZWlnaHQ9IjEyMiIgcng9IjIiIGZpbGw9InVybCgjbmF2eUdyYWQpIiBmaWx0ZXI9InVybCgjYmFkZ2VTaGFkb3cpIi8+CiAgPCEtLSB0b3AtZWRnZSBzaGVlbiAtLT4KICA8cmVjdCB4PSIxIiB5PSIxIiB3aWR0aD0iMTMzIiBoZWlnaHQ9IjIuNSIgcng9IjIiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4xNSkiLz4KCiAgPCEtLSAiMjAiIGxhcmdlIGJvbGQgaXRhbGljIG51bWVyYWwg4oCUIHVwcGVyIHBvcnRpb24gb2YgYmFkZ2UgLS0+CiAgPHRleHQgeD0iNjciIHk9IjU4IgogICAgZm9udC1mYW1pbHk9IidUaW1lcyBOZXcgUm9tYW4nLCBHZW9yZ2lhLCBzZXJpZiIKICAgIGZvbnQtc2l6ZT0iNjQiCiAgICBmb250LXdlaWdodD0iOTAwIgogICAgZm9udC1zdHlsZT0iaXRhbGljIgogICAgZmlsbD0id2hpdGUiCiAgICB0ZXh0LWFuY2hvcj0ibWlkZGxlIgogICAgZmlsdGVyPSJ1cmwoI3NvZnRTaGFkb3cpIgogICAgbGV0dGVyLXNwYWNpbmc9Ii0zIj4yMDwvdGV4dD4KCiAgPCEtLSDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZAgLS0+CiAgPCEtLSBSRUQgRElBR09OQUwgUklCQk9OICAgICAgICAgICAgICAgLS0+CiAgPCEtLSDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZAgLS0+CiAgPCEtLSBNYWluIHJpYmJvbiBiYW5kIC0tPgogIDxwb2x5Z29uIHBvaW50cz0iMCw2MyAgMTM0LDQ3ICAxMzQsODAgIDAsOTYiCiAgICBmaWxsPSJ1cmwoI3JlZEdyYWQpIi8+CiAgPCEtLSBUb3AgaGlnaGxpZ2h0IHN0cmlwZSAtLT4KICA8cG9seWdvbiBwb2ludHM9IjAsNjMgIDEzNCw0NyAgMTM0LDUwLjUgIDAsNjYuNSIKICAgIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4xNikiLz4KICA8IS0tIEJvdHRvbSBzaGFkb3cgc3RyaXBlIC0tPgogIDxwb2x5Z29uIHBvaW50cz0iMCw5MyAgMTM0LDc3ICAxMzQsODAgIDAsOTYiCiAgICBmaWxsPSJyZ2JhKDAsMCwwLDAuMTgpIi8+CgogIDwhLS0gIkNlbGVicmF0aW5nIiBpdGFsaWMgdGV4dCBvbiByaWJib24gLS0+CiAgPHRleHQgeD0iNjciIHk9Ijc2IgogICAgZm9udC1mYW1pbHk9IidUaW1lcyBOZXcgUm9tYW4nLCBHZW9yZ2lhLCBzZXJpZiIKICAgIGZvbnQtc2l6ZT0iMTIiCiAgICBmb250LXN0eWxlPSJpdGFsaWMiCiAgICBmb250LXdlaWdodD0iNDAwIgogICAgZmlsbD0id2hpdGUiCiAgICB0ZXh0LWFuY2hvcj0ibWlkZGxlIgogICAgbGV0dGVyLXNwYWNpbmc9IjAuMiI+Q2VsZWJyYXRpbmc8L3RleHQ+CgogIDwhLS0gInllYXJzIiB0ZXh0IOKAlCBsb3dlciBiYWRnZSBzZWN0aW9uIC0tPgogIDx0ZXh0IHg9IjY3IiB5PSIxMTMiCiAgICBmb250LWZhbWlseT0iJ1RpbWVzIE5ldyBSb21hbicsIEdlb3JnaWEsIHNlcmlmIgogICAgZm9udC1zaXplPSIxNiIKICAgIGZvbnQtd2VpZ2h0PSI3MDAiCiAgICBmaWxsPSJ3aGl0ZSIKICAgIHRleHQtYW5jaG9yPSJtaWRkbGUiCiAgICBsZXR0ZXItc3BhY2luZz0iMi41IgogICAgZmlsdGVyPSJ1cmwoI3NvZnRTaGFkb3cpIj55ZWFyczwvdGV4dD4KCiAgPCEtLSDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZAgLS0+CiAgPCEtLSBTQVBQSElSRSDigJQgcHJpbWFyeSBsb2dvdHlwZSAgICAgICAtLT4KICA8IS0tIOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkCAtLT4KICA8dGV4dCB4PSIxNDkiIHk9Ijc4IgogICAgZm9udC1mYW1pbHk9IidUaW1lcyBOZXcgUm9tYW4nLCBHZW9yZ2lhLCAnUGFsYXRpbm8gTGlub3R5cGUnLCBzZXJpZiIKICAgIGZvbnQtc2l6ZT0iODAiCiAgICBmb250LXdlaWdodD0iNzAwIgogICAgZmlsbD0id2hpdGUiCiAgICBmaWx0ZXI9InVybCgjc29mdFNoYWRvdykiCiAgICBsZXR0ZXItc3BhY2luZz0iMS41Ij5TQVBQSElSRTwvdGV4dD4KCiAgPCEtLSDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZAgLS0+CiAgPCEtLSBXZWFsdGggTWFuYWdlbWVudCwgTExDIOKAlCBzdWJ0aXRsZSAtLT4KICA8IS0tIOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkCAtLT4KICA8dGV4dCB4PSIxNTMiIHk9IjExMyIKICAgIGZvbnQtZmFtaWx5PSInVGltZXMgTmV3IFJvbWFuJywgR2VvcmdpYSwgJ1BhbGF0aW5vIExpbm90eXBlJywgc2VyaWYiCiAgICBmb250LXNpemU9IjI5LjUiCiAgICBmb250LXdlaWdodD0iNDAwIgogICAgZmlsbD0idXJsKCNnb2xkR3JhZCkiCiAgICBsZXR0ZXItc3BhY2luZz0iMC44Ij5XZWFsdGggTWFuYWdlbWVudCwgTExDPC90ZXh0PgoKPC9zdmc+Cg==" alt="Sapphire Wealth Management"/>
-          <div class="header-greeting anim-1">Good morning,</div>
-          <div class="header-name anim-1">Your <em>financial education</em><br>journey continues.</div>
-          <!-- Progress card -->
-          <div class="progress-card anim-2">
-            <div class="progress-ring-wrap">
-              <svg viewBox="0 0 58 58">
-                <circle class="ring-bg" cx="29" cy="29" r="24"/>
-                <circle class="ring-fill" cx="29" cy="29" r="24" id="homeRing"/>
-              </svg>
-              <div class="ring-label">30%</div>
-            </div>
-            <div class="progress-info">
-              <div class="progress-title">Foundations Series</div>
-              <div class="progress-stat">3 of 10 Lessons Complete</div>
-              <div class="progress-sub">Next: Retirement Income Strategies</div>
-            </div>
-          </div>
+<!-- ══════════════════ SCREEN: HOME ══════════════════ -->
+<div class="screen" id="screen-home">
+  <div class="scroll-area">
+    <div class="home-header">
+      <img class="header-logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2MzAgMTI0IiB3aWR0aD0iNjMwIiBoZWlnaHQ9IjEyNCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJTYXBwaGlyZSBXZWFsdGggTWFuYWdlbWVudCBMTEMgLSBDZWxlYnJhdGluZyAyMCBZZWFycyI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImdvbGRHcmFkIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiICAgc3RvcC1jb2xvcj0iI0NEQTk2QSIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjM1JSIgIHN0b3AtY29sb3I9IiNCODk2NUEiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjOEM2QjM4Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJuYXZ5R3JhZCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiICAgc3RvcC1jb2xvcj0iIzBFMkY2QiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMwQTIyNTUiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InJlZEdyYWQiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiAgIHN0b3AtY29sb3I9IiNCRTFFMjQiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSI2MCUiICBzdG9wLWNvbG9yPSIjQTMxODFEIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzhCMTExOCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ic2FwcGhpcmVHcmFkIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiICAgc3RvcC1jb2xvcj0iIzFDM0Y4QSIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjUwJSIgIHN0b3AtY29sb3I9IiMwRTJENzgiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMEIyNDY4Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic29mdFNoYWRvdyIgeD0iLTUlIiB5PSItMTAlIiB3aWR0aD0iMTE1JSIgaGVpZ2h0PSIxMzAlIj4KICAgICAgPGZlRHJvcFNoYWRvdyBkeD0iMCIgZHk9IjEuNSIgc3RkRGV2aWF0aW9uPSIxIiBmbG9vZC1jb2xvcj0iIzAwMDAyMiIgZmxvb2Qtb3BhY2l0eT0iMC4yMiIvPgogICAgPC9maWx0ZXI+CiAgICA8ZmlsdGVyIGlkPSJiYWRnZVNoYWRvdyIgeD0iLTUlIiB5PSItNSUiIHdpZHRoPSIxMTUlIiBoZWlnaHQ9IjEyMCUiPgogICAgICA8ZmVEcm9wU2hhZG93IGR4PSIxIiBkeT0iMiIgc3RkRGV2aWF0aW9uPSIyIiBmbG9vZC1jb2xvcj0iIzAwMDAwMCIgZmxvb2Qtb3BhY2l0eT0iMC4zMCIvPgogICAgPC9maWx0ZXI+CiAgPC9kZWZzPgoKICA8IS0tIOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkCAtLT4KICA8IS0tIE5BVlkgQkFER0UgQkxPQ0sgICAgICAgICAgICAgICAgICAtLT4KICA8IS0tIOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkCAtLT4KICA8cmVjdCB4PSIxIiB5PSIxIiB3aWR0aD0iMTMzIiBoZWlnaHQ9IjEyMiIgcng9IjIiIGZpbGw9InVybCgjbmF2eUdyYWQpIiBmaWx0ZXI9InVybCgjYmFkZ2VTaGFkb3cpIi8+CiAgPCEtLSB0b3AtZWRnZSBzaGVlbiAtLT4KICA8cmVjdCB4PSIxIiB5PSIxIiB3aWR0aD0iMTMzIiBoZWlnaHQ9IjIuNSIgcng9IjIiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4xNSkiLz4KCiAgPCEtLSAiMjAiIGxhcmdlIGJvbGQgaXRhbGljIG51bWVyYWwg4oCUIHVwcGVyIHBvcnRpb24gb2YgYmFkZ2UgLS0+CiAgPHRleHQgeD0iNjciIHk9IjU4IgogICAgZm9udC1mYW1pbHk9IidUaW1lcyBOZXcgUm9tYW4nLCBHZW9yZ2lhLCBzZXJpZiIKICAgIGZvbnQtc2l6ZT0iNjQiCiAgICBmb250LXdlaWdodD0iOTAwIgogICAgZm9udC1zdHlsZT0iaXRhbGljIgogICAgZmlsbD0id2hpdGUiCiAgICB0ZXh0LWFuY2hvcj0ibWlkZGxlIgogICAgZmlsdGVyPSJ1cmwoI3NvZnRTaGFkb3cpIgogICAgbGV0dGVyLXNwYWNpbmc9Ii0zIj4yMDwvdGV4dD4KCiAgPCEtLSDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZAgLS0+CiAgPCEtLSBSRUQgRElBR09OQUwgUklCQk9OICAgICAgICAgICAgICAgLS0+CiAgPCEtLSDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZAgLS0+CiAgPCEtLSBNYWluIHJpYmJvbiBiYW5kIC0tPgogIDxwb2x5Z29uIHBvaW50cz0iMCw2MyAgMTM0LDQ3ICAxMzQsODAgIDAsOTYiCiAgICBmaWxsPSJ1cmwoI3JlZEdyYWQpIi8+CiAgPCEtLSBUb3AgaGlnaGxpZ2h0IHN0cmlwZSAtLT4KICA8cG9seWdvbiBwb2ludHM9IjAsNjMgIDEzNCw0NyAgMTM0LDUwLjUgIDAsNjYuNSIKICAgIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4xNikiLz4KICA8IS0tIEJvdHRvbSBzaGFkb3cgc3RyaXBlIC0tPgogIDxwb2x5Z29uIHBvaW50cz0iMCw5MyAgMTM0LDc3ICAxMzQsODAgIDAsOTYiCiAgICBmaWxsPSJyZ2JhKDAsMCwwLDAuMTgpIi8+CgogIDwhLS0gIkNlbGVicmF0aW5nIiBpdGFsaWMgdGV4dCBvbiByaWJib24gLS0+CiAgPHRleHQgeD0iNjciIHk9Ijc2IgogICAgZm9udC1mYW1pbHk9IidUaW1lcyBOZXcgUm9tYW4nLCBHZW9yZ2lhLCBzZXJpZiIKICAgIGZvbnQtc2l6ZT0iMTIiCiAgICBmb250LXN0eWxlPSJpdGFsaWMiCiAgICBmb250LXdlaWdodD0iNDAwIgogICAgZmlsbD0id2hpdGUiCiAgICB0ZXh0LWFuY2hvcj0ibWlkZGxlIgogICAgbGV0dGVyLXNwYWNpbmc9IjAuMiI+Q2VsZWJyYXRpbmc8L3RleHQ+CgogIDwhLS0gInllYXJzIiB0ZXh0IOKAlCBsb3dlciBiYWRnZSBzZWN0aW9uIC0tPgogIDx0ZXh0IHg9IjY3IiB5PSIxMTMiCiAgICBmb250LWZhbWlseT0iJ1RpbWVzIE5ldyBSb21hbicsIEdlb3JnaWEsIHNlcmlmIgogICAgZm9udC1zaXplPSIxNiIKICAgIGZvbnQtd2VpZ2h0PSI3MDAiCiAgICBmaWxsPSJ3aGl0ZSIKICAgIHRleHQtYW5jaG9yPSJtaWRkbGUiCiAgICBsZXR0ZXItc3BhY2luZz0iMi41IgogICAgZmlsdGVyPSJ1cmwoI3NvZnRTaGFkb3cpIj55ZWFyczwvdGV4dD4KCiAgPCEtLSDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZAgLS0+CiAgPCEtLSBTQVBQSElSRSDigJQgcHJpbWFyeSBsb2dvdHlwZSAgICAgICAtLT4KICA8IS0tIOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkCAtLT4KICA8dGV4dCB4PSIxNDkiIHk9Ijc4IgogICAgZm9udC1mYW1pbHk9IidUaW1lcyBOZXcgUm9tYW4nLCBHZW9yZ2lhLCAnUGFsYXRpbm8gTGlub3R5cGUnLCBzZXJpZiIKICAgIGZvbnQtc2l6ZT0iODAiCiAgICBmb250LXdlaWdodD0iNzAwIgogICAgZmlsbD0id2hpdGUiCiAgICBmaWx0ZXI9InVybCgjc29mdFNoYWRvdykiCiAgICBsZXR0ZXItc3BhY2luZz0iMS41Ij5TQVBQSElSRTwvdGV4dD4KCiAgPCEtLSDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZAgLS0+CiAgPCEtLSBXZWFsdGggTWFuYWdlbWVudCwgTExDIOKAlCBzdWJ0aXRsZSAtLT4KICA8IS0tIOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkCAtLT4KICA8dGV4dCB4PSIxNTMiIHk9IjExMyIKICAgIGZvbnQtZmFtaWx5PSInVGltZXMgTmV3IFJvbWFuJywgR2VvcmdpYSwgJ1BhbGF0aW5vIExpbm90eXBlJywgc2VyaWYiCiAgICBmb250LXNpemU9IjI5LjUiCiAgICBmb250LXdlaWdodD0iNDAwIgogICAgZmlsbD0idXJsKCNnb2xkR3JhZCkiCiAgICBsZXR0ZXItc3BhY2luZz0iMC44Ij5XZWFsdGggTWFuYWdlbWVudCwgTExDPC90ZXh0PgoKPC9zdmc+Cg==" alt="Sapphire Wealth Management"/>
+      <div class="header-greeting">Good morning,</div>
+      <div class="header-name">Your <em>financial education</em><br>journey continues.</div>
+      <div class="progress-card">
+        <div class="progress-ring-wrap">
+          <svg viewBox="0 0 58 58"><circle class="ring-bg" cx="29" cy="29" r="24"/><circle class="ring-fill" cx="29" cy="29" r="24"/></svg>
+          <div class="ring-label">30%</div>
         </div>
-
-        <!-- Course Matrix -->
-        <div class="section-header anim-3">
-          <div class="section-title">Your Courses</div>
-          <div class="section-link">See All</div>
-        </div>
-        <div class="course-matrix anim-3">
-
-          <!-- Card 1 — In Progress -->
-          <div class="course-card" onclick="showCourse(1)">
-            <div class="course-card-accent" style="background:linear-gradient(90deg,var(--sapphire),var(--sapphire-mid))"></div>
-            <div class="course-card-body">
-              <span class="course-status-pill pill-progress">
-                ▶ In Progress
-              </span>
-              <h4>Investing Foundations</h4>
-              <div class="course-card-meta">
-                <div class="course-card-stat"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>10 lessons</div>
-                <div class="course-card-stat"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>45 min</div>
-              </div>
-              <div class="card-prog-wrap">
-                <div class="card-prog-bar"><div class="card-prog-fill" style="width:30%;background:var(--sapphire)"></div></div>
-              </div>
-            </div>
-            <div class="course-card-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
-          </div>
-
-          <!-- Card 2 — New -->
-          <div class="course-card" onclick="showCourse(2)">
-            <div class="course-card-accent" style="background:linear-gradient(90deg,var(--gold),var(--gold-light))"></div>
-            <div class="course-card-body">
-              <span class="course-status-pill pill-new">
-                ★ New
-              </span>
-              <h4>Retirement Planning at Every Stage</h4>
-              <div class="course-card-meta">
-                <div class="course-card-stat"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>8 lessons</div>
-                <div class="course-card-stat"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>38 min</div>
-              </div>
-              <div class="card-prog-wrap">
-                <div class="card-prog-bar"><div class="card-prog-fill" style="width:0%;background:var(--gold)"></div></div>
-              </div>
-            </div>
-            <div class="course-card-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
-          </div>
-
-          <!-- Card 3 — New -->
-          <div class="course-card" onclick="showCourse(3)">
-            <div class="course-card-accent" style="background:linear-gradient(90deg,#8B5E2A,#C4893E)"></div>
-            <div class="course-card-body">
-              <span class="course-status-pill pill-new">
-                ★ New
-              </span>
-              <h4>Insurance &amp; Wealth Protection</h4>
-              <div class="course-card-meta">
-                <div class="course-card-stat"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>6 lessons</div>
-                <div class="course-card-stat"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>28 min</div>
-              </div>
-              <div class="card-prog-wrap">
-                <div class="card-prog-bar"><div class="card-prog-fill" style="width:0%;background:#8B5E2A"></div></div>
-              </div>
-            </div>
-            <div class="course-card-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
-          </div>
-
-          <!-- Card 4 — Locked -->
-          <div class="course-card">
-            <div class="course-card-accent" style="background:linear-gradient(90deg,#2D5016,#4a7c2f)"></div>
-            <div class="course-card-body">
-              <span class="course-status-pill pill-locked">
-                🔒 Locked
-              </span>
-              <h4>Estate &amp; Legacy Planning</h4>
-              <div class="course-card-meta">
-                <div class="course-card-stat"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>7 lessons</div>
-                <div class="course-card-stat"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>33 min</div>
-              </div>
-              <div class="card-prog-wrap">
-                <div class="card-prog-bar"><div class="card-prog-fill" style="width:0%;background:#2D5016"></div></div>
-              </div>
-            </div>
-            <div class="course-card-arrow" style="background:var(--stone)"><svg viewBox="0 0 24 24" style="stroke:var(--mist)"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
-          </div>
-
-          <!-- Card 5 — Locked -->
-          <div class="course-card">
-            <div class="course-card-accent" style="background:linear-gradient(90deg,#1a4a5c,#2a7a9c)"></div>
-            <div class="course-card-body">
-              <span class="course-status-pill pill-locked">
-                🔒 Locked
-              </span>
-              <h4>Tax Strategy &amp; Smart Allocation</h4>
-              <div class="course-card-meta">
-                <div class="course-card-stat"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>8 lessons</div>
-                <div class="course-card-stat"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>40 min</div>
-              </div>
-              <div class="card-prog-wrap">
-                <div class="card-prog-bar"><div class="card-prog-fill" style="width:0%;background:#1a4a5c"></div></div>
-              </div>
-            </div>
-            <div class="course-card-arrow" style="background:var(--stone)"><svg viewBox="0 0 24 24" style="stroke:var(--mist)"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
-          </div>
-
-          <!-- Card 6 — Locked -->
-          <div class="course-card">
-            <div class="course-card-accent" style="background:linear-gradient(90deg,#4a1a5c,#7a2a9c)"></div>
-            <div class="course-card-body">
-              <span class="course-status-pill pill-locked">
-                🔒 Locked
-              </span>
-              <h4>Behavioral Finance &amp; Investor Psychology</h4>
-              <div class="course-card-meta">
-                <div class="course-card-stat"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>6 lessons</div>
-                <div class="course-card-stat"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>30 min</div>
-              </div>
-              <div class="card-prog-wrap">
-                <div class="card-prog-bar"><div class="card-prog-fill" style="width:0%;background:#4a1a5c"></div></div>
-              </div>
-            </div>
-            <div class="course-card-arrow" style="background:var(--stone)"><svg viewBox="0 0 24 24" style="stroke:var(--mist)"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
-          </div>
-
-        </div>
-
-        <!-- Quick Lessons -->
-        <div class="section-header anim-4">
-          <div class="section-title">Quick Reads</div>
-          <div class="section-link">Browse</div>
-        </div>
-        <div class="quick-grid anim-4">
-          <div class="quick-tile" onclick="quickTileClick()">
-            <div class="quick-tile-badge">5 min</div>
-            <div class="quick-tile-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
-            <h4>What Is Dollar-Cost Averaging?</h4>
-            <p>A simple strategy for market uncertainty</p>
-          </div>
-          <div class="quick-tile">
-            <div class="quick-tile-badge">7 min</div>
-            <div class="quick-tile-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-            <h4>Understanding Your Risk Tolerance</h4>
-            <p>Find your comfort zone before you invest</p>
-          </div>
-          <div class="quick-tile">
-            <div class="quick-tile-badge">4 min</div>
-            <div class="quick-tile-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
-            <h4>Roth vs. Traditional IRA: Which Is Right?</h4>
-            <p>Tax now or tax later — it matters more than you think</p>
-          </div>
-          <div class="quick-tile">
-            <div class="quick-tile-badge">6 min</div>
-            <div class="quick-tile-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
-            <h4>How Market Cycles Work</h4>
-            <p>Why bear markets are a normal part of investing</p>
-          </div>
-        </div>
-
-        <!-- Daily tip -->
-        <div class="daily-tip anim-4" onclick="quickTileClick()">
-          <div class="tip-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
-          <div>
-            <div class="tip-label">Sapphire Insight of the Day</div>
-            <div class="tip-text">"Time in the market beats timing the market — every decade of data confirms it."</div>
-          </div>
-        </div>
-
-        <div style="height:16px"></div>
-      </div>
-
-      <!-- Tab Bar -->
-      <div class="tab-bar">
-        <div class="tab-item active" onclick="switchTab('home')">
-          <div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
-          <span class="tab-label">Home</span>
-        </div>
-        <div class="tab-item" onclick="switchTab('courses')">
-          <div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></div>
-          <span class="tab-label">Courses</span>
-        </div>
-        <div class="tab-item" onclick="switchTab('quiz')">
-          <div class="tab-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
-          <span class="tab-label">Quiz</span>
-        </div>
-        <div class="tab-item" onclick="switchTab('profile')">
-          <div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-          <span class="tab-label">Profile</span>
+        <div>
+          <div class="progress-title">Foundations Series</div>
+          <div class="progress-stat">3 of 10 Lessons Complete</div>
+          <div class="progress-sub">Next: Lesson 4 — Diversification</div>
         </div>
       </div>
-    </div><!-- /screen-home -->
-
-    <!-- ══════════════════════════════════════════ -->
-    <!-- SCREEN 2 — COURSE DETAIL                  -->
-    <!-- ══════════════════════════════════════════ -->
-    <div class="screen hidden" id="screen-course">
-      <div class="scroll-area">
-        <div class="course-hero" id="course-hero-bg" style="background:linear-gradient(155deg,#0F2F5C 0%,#2A5FA8 100%)">
-          <div class="back-btn" onclick="goBack()">
-            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-            Library
-          </div>
-          <div class="course-tag-row" id="course-tags">
-            <span class="ctag">Foundations</span>
-            <span class="ctag">Beginner</span>
-          </div>
-          <h2 id="course-title">Investing Foundations for New Investors</h2>
-          <div class="course-hero-sub" id="course-subtitle">Build the knowledge that every investor needs before committing a dollar — from core concepts to behavioral pitfalls.</div>
-          <div class="course-stats-row">
-            <div class="cstat"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg><span id="course-stat-lessons">10 Lessons</span></div>
-            <div class="cstat"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span id="course-stat-mins">~45 minutes</span></div>
-            <div class="cstat"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span id="course-stat-rating">4.9 rating</span></div>
-          </div>
-        </div>
-
-        <!-- Progress -->
-        <div class="course-prog-wrap">
-          <div class="course-prog-label"><span>Your Progress</span><span style="color:var(--sapphire);font-weight:600" id="course-prog-label-done">3 / 10</span></div>
-          <div class="course-prog-bar"><div class="course-prog-fill" id="course-prog-fill" style="width:30%"></div></div>
-        </div>
-
-        <!-- Lessons -->
-        <div class="lesson-list">
-          <div id="lesson-list-body">
-          <div class="lesson-section-label">Module 1 — The Basics</div>
-
-          <div class="lesson-item">
-            <div class="lesson-num done">
-              <svg viewBox="0 0 24 24" width="16" height="16" stroke="white" fill="none" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <div class="lesson-info"><h4>Why Investing Matters</h4><span>4 min · Completed</span></div>
-          </div>
-
-          <div class="lesson-item">
-            <div class="lesson-num done">
-              <svg viewBox="0 0 24 24" width="16" height="16" stroke="white" fill="none" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <div class="lesson-info"><h4>Understanding Risk &amp; Return</h4><span>5 min · Completed</span></div>
-          </div>
-
-          <div class="lesson-item">
-            <div class="lesson-num done">
-              <svg viewBox="0 0 24 24" width="16" height="16" stroke="white" fill="none" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <div class="lesson-info"><h4>The Power of Compound Growth</h4><span>5 min · Completed</span></div>
-          </div>
-
-          <div class="lesson-section-label">Module 2 — Building Your Portfolio</div>
-
-          <div class="lesson-item active-lesson" onclick="quickTileClick()">
-            <div class="lesson-num current">4</div>
-            <div class="lesson-info"><h4>Diversification: Don't Put Everything in One Basket</h4><span>5 min · Up Next</span></div>
-            <div class="lesson-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
-          </div>
-
-          <div class="lesson-item">
-            <div class="lesson-num locked">5</div>
-            <div class="lesson-info"><h4>Dollar-Cost Averaging Explained</h4><span>4 min · Locked</span></div>
-            <div class="lesson-arrow"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
-          </div>
-
-          <div class="lesson-item">
-            <div class="lesson-num locked">6</div>
-            <div class="lesson-info"><h4>Stocks, Bonds &amp; Funds: What's the Difference?</h4><span>6 min · Locked</span></div>
-            <div class="lesson-arrow"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
-          </div>
-
-          <div class="lesson-section-label">Module 3 — Investor Psychology</div>
-
-          <div class="lesson-item">
-            <div class="lesson-num locked">7</div>
-            <div class="lesson-info"><h4>Behavioral Biases That Cost Investors Money</h4><span>5 min · Locked</span></div>
-            <div class="lesson-arrow"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
-          </div>
-
-          <div class="lesson-item">
-            <div class="lesson-num locked">8</div>
-            <div class="lesson-info"><h4>How to Invest During Market Volatility</h4><span>5 min · Locked</span></div>
-            <div class="lesson-arrow"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
-          </div>
-
-          <div class="lesson-item">
-            <div class="lesson-num locked">9</div>
-            <div class="lesson-info"><h4>Setting Realistic Financial Goals</h4><span>4 min · Locked</span></div>
-            <div class="lesson-arrow"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
-          </div>
-
-          <div class="lesson-item">
-            <div class="lesson-num locked">10</div>
-            <div class="lesson-info"><h4>Building Your First Investment Plan</h4><span>6 min · Locked</span></div>
-            <div class="lesson-arrow"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
-          </div>
-
-          <div style="height:8px"></div>
-        </div>
-      </div>
-
-      <div class="start-btn-wrap">
-        <button class="start-btn" id="course-start-btn" onclick="showLesson(4)">
-          <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Continue — Lesson 4
-        </button>
-      </div>
-    </div><!-- /screen-course -->
-
-    <!-- ══════════════════════════════════════════ -->
-    <!-- SCREEN 3 — LESSON READER                  -->
-    <!-- ══════════════════════════════════════════ -->
-    <div class="screen hidden" id="screen-lesson">
-      <div class="lesson-nav">
-        <div class="lesson-nav-back" onclick="goBack()">
-          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-          Back
-        </div>
-        <div class="lesson-nav-title" id="lesson-num-label">Lesson 4</div>
-        <div class="lesson-nav-count" id="lesson-count-label">4 / 10</div>
-      </div>
-      <div class="read-progress"><div class="read-progress-fill" id="readProg"></div></div>
-
-      <div class="scroll-area" id="lessonScroll">
-        <div class="lesson-content">
-          <div class="lesson-eyebrow" id="lesson-eyebrow">Module 2 · Building Your Portfolio</div>
-          <h2 id="lesson-main-title">Diversification: Don't Put Everything in One Basket</h2>
-
-          <div class="lesson-read-meta">
-            <div class="read-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span id="lesson-mins">5 min read</span></div>
-            <div class="read-meta-item"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span id="lesson-level">Beginner</span></div>
-          </div>
-
-          <div class="pullquote">
-            <p id="pullquote-text">"Diversification is the only free lunch in investing." — Harry Markowitz, Nobel Laureate in Economics</p>
-          </div>
-
-          <div id="lesson-body"><div class="lesson-prose">
-            <p>Every experienced investor knows one universal truth: <strong>no single investment is guaranteed to succeed.</strong> Markets are unpredictable. Companies stumble. Entire sectors fall out of favor. But investors who spread their money wisely across different types of investments tend to weather storms that devastate those who don't.</p>
-
-            <p>This principle — diversification — is one of the most powerful concepts in personal finance, and it costs you nothing to implement.</p>
-          </div>
-
-          <div class="insight-box">
-            <div class="insight-label"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Sapphire Key Insight</div>
-            <p>A diversified portfolio doesn't eliminate risk — it manages it. When one investment drops, others in your portfolio may hold steady or even rise, smoothing out the ride.</p>
-          </div>
-
-          <div class="lesson-prose">
-            <p><strong>What does diversification actually mean?</strong></p>
-            <p>Think of it as owning a slice of many different things rather than a large share of one. A well-diversified portfolio might include:</p>
-          </div>
-
-          <!-- Key terms -->
-          <div style="margin:4px 0 8px">
-            <div class="key-term">
-              <div class="key-term-dot"></div>
-              <div><div class="key-term-word">Stocks (Equities)</div><div class="key-term-def">Ownership shares in companies that tend to grow over long periods but can be volatile short-term.</div></div>
-            </div>
-            <div class="key-term">
-              <div class="key-term-dot"></div>
-              <div><div class="key-term-word">Bonds (Fixed Income)</div><div class="key-term-def">Loans to governments or corporations that pay regular interest — generally lower risk and lower return than stocks.</div></div>
-            </div>
-            <div class="key-term">
-              <div class="key-term-dot"></div>
-              <div><div class="key-term-word">Real Assets</div><div class="key-term-def">Real estate, commodities, and infrastructure that often move independently of stocks and bonds.</div></div>
-            </div>
-            <div class="key-term" style="border-bottom:none">
-              <div class="key-term-dot"></div>
-              <div><div class="key-term-word">Cash &amp; Equivalents</div><div class="key-term-def">Money market funds and short-term instruments that preserve capital while earning modest returns.</div></div>
-            </div>
-          </div>
-
-          <div class="lesson-prose">
-            <p>The key is that these asset classes often <strong>don't move in the same direction at the same time.</strong> When stocks decline sharply, bonds frequently hold their value or increase. When domestic stocks struggle, international markets may thrive. This natural offset is what makes diversification so effective.</p>
-            <p>At Sapphire, we build every client portfolio with this principle at its core — not as a checkbox, but as a genuine commitment to protecting your financial future through the inevitable ups and downs of market cycles.</p>
-          </div>
-
-          </div><!-- /lesson-body -->
-
-          <!-- Quiz CTA -->
-          <div class="quiz-cta" id="lesson-quiz-cta" onclick="showQuiz()">
-            <div class="quiz-cta-inner">
-              <h3>Test Your Understanding</h3>
-              <p>Answer 3 quick questions to reinforce what you've just learned and earn your lesson badge.</p>
-              <button class="quiz-btn">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                Take the Quiz
-              </button>
-            </div>
-          </div>
-
-          <div style="height:8px"></div>
-        </div>
-      </div>
-
-      <div class="lesson-footer">
-        <button class="bookmark-btn">
-          <svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
-        </button>
-        <button class="next-btn" id="lesson-next-btn" onclick="showQuiz()">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          Quiz Time
-        </button>
-      </div>
-    </div><!-- /screen-lesson -->
-
-    <!-- ══════════════════════════════════════════ -->
-    <!-- SCREEN 4 — QUIZ                           -->
-    <!-- ══════════════════════════════════════════ -->
-    <div class="screen hidden" id="screen-quiz">
-      <div class="quiz-header">
-        <div class="quiz-top">
-          <div class="quiz-back" onclick="goBack()">
-            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-            Back
-          </div>
-          <div class="quiz-counter">Question <span id="qNum">1</span> of 3</div>
-          <div class="quiz-score" id="qScore">Score: 0</div>
-        </div>
-        <div class="q-dots">
-          <div class="q-dot current" id="dot0"></div>
-          <div class="q-dot" id="dot1"></div>
-          <div class="q-dot" id="dot2"></div>
-        </div>
-      </div>
-
-      <div class="scroll-area">
-        <div class="quiz-body" id="quizBody">
-          <!-- JS rendered -->
-        </div>
-        <button class="quiz-next-btn" id="quizNextBtn" onclick="nextQuestion()">
-          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-          Next Question
-        </button>
-        <div style="height:24px"></div>
-      </div>
-    </div><!-- /screen-quiz -->
-
-    <!-- ══════════════════════════════════════════ -->
-    <!-- SCREEN 5 — PROFILE                        -->
-    <!-- ══════════════════════════════════════════ -->
-    <div class="screen hidden" id="screen-profile">
-      <div class="scroll-area">
-        <div class="profile-header">
-          <div class="profile-avatar">
-            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          </div>
-          <div class="profile-name">Sarah M.</div>
-          <div class="profile-subtitle">Sapphire Wealth Client · Member since 2021</div>
-          <div class="profile-stats-row">
-            <div class="pstat"><div class="pstat-num">3</div><div class="pstat-label">Lessons Done</div></div>
-            <div class="pstat"><div class="pstat-num">1</div><div class="pstat-label">Courses Active</div></div>
-            <div class="pstat"><div class="pstat-num">85<em>%</em></div><div class="pstat-label">Quiz Accuracy</div></div>
-            <div class="pstat"><div class="pstat-num">7</div><div class="pstat-label">Day Streak</div></div>
-          </div>
-        </div>
-
-        <!-- Badges -->
-        <div class="section-header">
-          <div class="section-title">Your Badges</div>
-          <div class="section-link">View All</div>
-        </div>
-        <div class="badge-row">
-          <div class="badge-item">
-            <div class="badge-circle earned">
-              <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            </div>
-            <div class="badge-name">First Lesson</div>
-          </div>
-          <div class="badge-item">
-            <div class="badge-circle earned">
-              <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-            </div>
-            <div class="badge-name">Quiz Pro</div>
-          </div>
-          <div class="badge-item">
-            <div class="badge-circle earned">
-              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            </div>
-            <div class="badge-name">7-Day Streak</div>
-          </div>
-          <div class="badge-item">
-            <div class="badge-circle locked">
-              <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
-            </div>
-            <div class="badge-name">Course Complete</div>
-          </div>
-          <div class="badge-item">
-            <div class="badge-circle locked">
-              <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            </div>
-            <div class="badge-name">Risk Expert</div>
-          </div>
-          <div class="badge-item">
-            <div class="badge-circle locked">
-              <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-            </div>
-            <div class="badge-name">All Courses</div>
-          </div>
-        </div>
-
-        <!-- Menu -->
-        <div class="section-header" style="margin-top:12px">
-          <div class="section-title">Account</div>
-        </div>
-        <div class="profile-menu">
-          <div class="menu-item">
-            <div class="menu-icon" style="background:var(--sapphire-pale)"><svg stroke="var(--sapphire)" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-            <div class="menu-text"><strong>My Profile</strong><span>Personal details &amp; preferences</span></div>
-            <div class="menu-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
-          </div>
-          <div class="menu-item">
-            <div class="menu-icon" style="background:var(--gold-pale)"><svg stroke="var(--gold)" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 .18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg></div>
-            <div class="menu-text"><strong>Contact My Advisor</strong><span>Reach the Sapphire team</span></div>
-            <div class="menu-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
-          </div>
-          <div class="menu-item">
-            <div class="menu-icon" style="background:#f0fdf4"><svg stroke="#22c55e" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-            <div class="menu-text"><strong>Saved Articles</strong><span>3 articles bookmarked</span></div>
-            <div class="menu-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
-          </div>
-          <div class="menu-item">
-            <div class="menu-icon" style="background:#fef2f2"><svg stroke="#ef4444" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg></div>
-            <div class="menu-text"><strong>Notifications</strong><span>Manage learning reminders</span></div>
-            <div class="menu-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
-          </div>
-        </div>
-
-        <!-- Advisor CTA -->
-        <div style="margin:4px 22px 24px;background:linear-gradient(135deg,var(--sapphire-deep),var(--sapphire));border-radius:18px;padding:20px;position:relative;overflow:hidden">
-          <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 80% 30%,rgba(184,150,90,0.18) 0%,transparent 55%)"></div>
-          <div style="position:relative">
-            <div style="font-size:11px;font-weight:700;color:var(--gold-light);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px">Sapphire Wealth</div>
-            <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:white;margin-bottom:6px">Have questions from your lessons?</div>
-            <div style="font-size:12.5px;color:rgba(255,255,255,0.70);line-height:1.55;margin-bottom:14px">Your Sapphire advisor is here to connect learning to your personal financial plan.</div>
-            <div style="display:inline-flex;align-items:center;gap:6px;background:var(--gold);color:white;font-size:13px;font-weight:600;padding:9px 16px;border-radius:10px;cursor:pointer">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 .18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
-              Call (978) 685-1600
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tab Bar -->
-      <div class="tab-bar">
-        <div class="tab-item" onclick="switchTab('home')">
-          <div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
-          <span class="tab-label">Home</span>
-        </div>
-        <div class="tab-item" onclick="switchTab('courses')">
-          <div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></div>
-          <span class="tab-label">Courses</span>
-        </div>
-        <div class="tab-item" onclick="switchTab('quiz')">
-          <div class="tab-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
-          <span class="tab-label">Quiz</span>
-        </div>
-        <div class="tab-item active" onclick="switchTab('profile')">
-          <div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-          <span class="tab-label">Profile</span>
-        </div>
-      </div>
-    </div><!-- /screen-profile -->
-
-    
-    <!-- Locked Toast -->
-    <div id="locked-toast" style="position:absolute;bottom:100px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--charcoal);color:white;font-size:12px;font-weight:500;padding:10px 18px;border-radius:100px;white-space:nowrap;opacity:0;transition:all 0.3s ease;pointer-events:none;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,0.3);">
-      🔒 Complete more lessons to unlock <span id="locked-toast-name"></span>
     </div>
+
+    <div class="section-header">
+      <div class="section-title">Your Courses</div>
+      <div class="section-link">See All</div>
+    </div>
+
+    <div class="course-matrix">
+      <!-- Card 1 — active -->
+      <div class="course-card" onclick="navTo('screen-course')">
+        <div class="course-card-accent" style="background:linear-gradient(90deg,#0F2F5C,#2A5FA8)"></div>
+        <div class="course-card-body">
+          <span class="course-status-pill pill-progress">▶ In Progress</span>
+          <h4>Investing Foundations</h4>
+          <div class="course-card-meta">
+            <div class="course-card-stat"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>10 lessons</div>
+            <div class="course-card-stat"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>45 min</div>
+          </div>
+          <div class="card-prog-bar"><div class="card-prog-fill" style="width:30%;background:#1B4B8A"></div></div>
+        </div>
+        <div class="course-card-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </div>
+      <!-- Card 2 -->
+      <div class="course-card">
+        <div class="course-card-accent" style="background:linear-gradient(90deg,#B8965A,#D4AF78)"></div>
+        <div class="course-card-body">
+          <span class="course-status-pill pill-new">★ New</span>
+          <h4>Retirement Planning</h4>
+          <div class="course-card-meta">
+            <div class="course-card-stat"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>8 lessons</div>
+            <div class="course-card-stat"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>38 min</div>
+          </div>
+          <div class="card-prog-bar"><div class="card-prog-fill" style="width:0%;background:#B8965A"></div></div>
+        </div>
+        <div class="course-card-arrow" style="background:var(--stone)"><svg viewBox="0 0 24 24" style="stroke:var(--mist)"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+      </div>
+      <!-- Card 3 -->
+      <div class="course-card">
+        <div class="course-card-accent" style="background:linear-gradient(90deg,#5C3D1A,#9A6E2A)"></div>
+        <div class="course-card-body">
+          <span class="course-status-pill pill-new">★ New</span>
+          <h4>Insurance &amp; Wealth Protection</h4>
+          <div class="course-card-meta">
+            <div class="course-card-stat"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>6 lessons</div>
+            <div class="course-card-stat"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>28 min</div>
+          </div>
+          <div class="card-prog-bar"><div class="card-prog-fill" style="width:0%"></div></div>
+        </div>
+        <div class="course-card-arrow" style="background:var(--stone)"><svg viewBox="0 0 24 24" style="stroke:var(--mist)"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+      </div>
+      <!-- Card 4 -->
+      <div class="course-card">
+        <div class="course-card-accent" style="background:linear-gradient(90deg,#2D5016,#4a7c2f)"></div>
+        <div class="course-card-body">
+          <span class="course-status-pill pill-locked">🔒 Locked</span>
+          <h4>Estate &amp; Legacy Planning</h4>
+          <div class="course-card-meta">
+            <div class="course-card-stat"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>7 lessons</div>
+            <div class="course-card-stat"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>33 min</div>
+          </div>
+          <div class="card-prog-bar"><div class="card-prog-fill" style="width:0%"></div></div>
+        </div>
+        <div class="course-card-arrow" style="background:var(--stone)"><svg viewBox="0 0 24 24" style="stroke:var(--mist)"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+      </div>
+      <!-- Card 5 -->
+      <div class="course-card">
+        <div class="course-card-accent" style="background:linear-gradient(90deg,#1a4a5c,#2a7a9c)"></div>
+        <div class="course-card-body">
+          <span class="course-status-pill pill-locked">🔒 Locked</span>
+          <h4>Tax Strategy</h4>
+          <div class="course-card-meta">
+            <div class="course-card-stat"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>8 lessons</div>
+            <div class="course-card-stat"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>40 min</div>
+          </div>
+          <div class="card-prog-bar"><div class="card-prog-fill" style="width:0%"></div></div>
+        </div>
+        <div class="course-card-arrow" style="background:var(--stone)"><svg viewBox="0 0 24 24" style="stroke:var(--mist)"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+      </div>
+      <!-- Card 6 -->
+      <div class="course-card">
+        <div class="course-card-accent" style="background:linear-gradient(90deg,#4a1a5c,#7a2a9c)"></div>
+        <div class="course-card-body">
+          <span class="course-status-pill pill-locked">🔒 Locked</span>
+          <h4>Behavioral Finance</h4>
+          <div class="course-card-meta">
+            <div class="course-card-stat"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>6 lessons</div>
+            <div class="course-card-stat"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>30 min</div>
+          </div>
+          <div class="card-prog-bar"><div class="card-prog-fill" style="width:0%"></div></div>
+        </div>
+        <div class="course-card-arrow" style="background:var(--stone)"><svg viewBox="0 0 24 24" style="stroke:var(--mist)"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <div class="section-title">Quick Reads</div>
+      <div class="section-link">Browse</div>
+    </div>
+    <div class="quick-grid">
+      <div class="quick-tile" onclick="navTo('screen-lesson')">
+        <div class="quick-tile-badge">4 min</div>
+        <div class="quick-tile-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+        <h4>Why Investing Matters</h4>
+        <p>The case for putting your money to work</p>
+      </div>
+      <div class="quick-tile">
+        <div class="quick-tile-badge">5 min</div>
+        <div class="quick-tile-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <h4>Understanding Risk Tolerance</h4>
+        <p>Find your comfort zone before you invest</p>
+      </div>
+      <div class="quick-tile">
+        <div class="quick-tile-badge">4 min</div>
+        <div class="quick-tile-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+        <h4>Roth vs. Traditional IRA</h4>
+        <p>Tax now or tax later — it matters</p>
+      </div>
+      <div class="quick-tile">
+        <div class="quick-tile-badge">6 min</div>
+        <div class="quick-tile-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+        <h4>How Market Cycles Work</h4>
+        <p>Why bear markets are normal</p>
+      </div>
+    </div>
+
+    <div class="daily-tip" onclick="navTo('screen-lesson')">
+      <div class="tip-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+      <div>
+        <div class="tip-label">Sapphire Insight of the Day</div>
+        <div class="tip-text">"Time in the market beats timing the market — every decade of data confirms it."</div>
+      </div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+  <div class="tab-bar">
+    <div class="tab-item active" onclick="switchTab('home',this)"><div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><span class="tab-label">Home</span></div>
+    <div class="tab-item" onclick="switchTab('courses',this)"><div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></div><span class="tab-label">Courses</span></div>
+    <div class="tab-item" onclick="switchTab('quiz',this)"><div class="tab-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><span class="tab-label">Quiz</span></div>
+    <div class="tab-item" onclick="switchTab('profile',this)"><div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><span class="tab-label">Profile</span></div>
+  </div>
+</div>
+
+<!-- ══════════════════ SCREEN: COURSE ═════════════════ -->
+<div class="screen" id="screen-course">
+  <div class="scroll-area">
+    <div class="course-hero" id="course-hero-bg" style="background:linear-gradient(155deg,#0F2F5C 0%,#2A5FA8 100%)">
+      <div class="back-btn" onclick="goBack()">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        Library
+      </div>
+      <div class="course-tag-row">
+        <span class="ctag">Foundations</span>
+        <span class="ctag">Beginner</span>
+      </div>
+      <h2>Investing Foundations for New Investors</h2>
+      <div class="course-hero-sub">Build the knowledge every investor needs — from core concepts to behavioural pitfalls.</div>
+      <div class="course-stats-row">
+        <div class="cstat"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>10 Lessons</div>
+        <div class="cstat"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>~45 minutes</div>
+        <div class="cstat"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>4.9 rating</div>
+      </div>
+    </div>
+
+    <div class="course-prog-wrap">
+      <div class="course-prog-label"><span>Your Progress</span><span style="color:var(--sapphire);font-weight:600">1 / 10</span></div>
+      <div class="course-prog-bar"><div class="course-prog-fill" style="width:10%"></div></div>
+    </div>
+
+    <div class="lesson-list">
+      <div class="lesson-section-label">Module 1 — The Basics</div>
+
+      <div class="lesson-item clickable active-lesson" onclick="navTo('screen-lesson')">
+        <div class="lesson-num current">1</div>
+        <div class="lesson-info"><h4>Why Investing Matters</h4><span>4 min · Start Here</span></div>
+        <div class="lesson-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </div>
+      <div class="lesson-item" style="opacity:.55">
+        <div class="lesson-num locked">2</div>
+        <div class="lesson-info"><h4>Understanding Risk and Return</h4><span>5 min · Locked</span></div>
+        <div class="lesson-arrow"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+      </div>
+      <div class="lesson-item" style="opacity:.55">
+        <div class="lesson-num locked">3</div>
+        <div class="lesson-info"><h4>The Power of Compound Growth</h4><span>5 min · Locked</span></div>
+        <div class="lesson-arrow"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+      </div>
+
+      <div class="lesson-section-label">Module 2 — Building Your Portfolio</div>
+
+      <div class="lesson-item" style="opacity:.55">
+        <div class="lesson-num locked">4</div>
+        <div class="lesson-info"><h4>Diversification: Spread Your Risk</h4><span>5 min · Locked</span></div>
+        <div class="lesson-arrow"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+      </div>
+      <div class="lesson-item" style="opacity:.55">
+        <div class="lesson-num locked">5</div>
+        <div class="lesson-info"><h4>Dollar-Cost Averaging Explained</h4><span>4 min · Locked</span></div>
+        <div class="lesson-arrow"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+      </div>
+      <div class="lesson-item" style="opacity:.55">
+        <div class="lesson-num locked">6</div>
+        <div class="lesson-info"><h4>Stocks, Bonds and Funds Explained</h4><span>6 min · Locked</span></div>
+        <div class="lesson-arrow"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+      </div>
+
+      <div class="lesson-section-label">Module 3 — Investor Psychology</div>
+
+      <div class="lesson-item" style="opacity:.55">
+        <div class="lesson-num locked">7</div>
+        <div class="lesson-info"><h4>Behavioral Biases That Cost Investors</h4><span>5 min · Locked</span></div>
+        <div class="lesson-arrow"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+      </div>
+      <div class="lesson-item" style="opacity:.55">
+        <div class="lesson-num locked">8</div>
+        <div class="lesson-info"><h4>Investing During Market Volatility</h4><span>5 min · Locked</span></div>
+        <div class="lesson-arrow"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+      </div>
+      <div class="lesson-item" style="opacity:.55">
+        <div class="lesson-num locked">9</div>
+        <div class="lesson-info"><h4>Setting Realistic Financial Goals</h4><span>4 min · Locked</span></div>
+        <div class="lesson-arrow"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+      </div>
+      <div class="lesson-item" style="opacity:.55">
+        <div class="lesson-num locked">10</div>
+        <div class="lesson-info"><h4>Building Your First Investment Plan</h4><span>6 min · Locked</span></div>
+        <div class="lesson-arrow"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+      </div>
+      <div style="height:8px"></div>
+    </div>
+  </div>
+
+  <div class="start-btn-wrap">
+    <button class="start-btn" onclick="navTo('screen-lesson')">
+      <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      Start — Lesson 1: Why Investing Matters
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════ SCREEN: LESSON ═════════════════ -->
+<div class="screen" id="screen-lesson">
+  <div class="lesson-nav">
+    <div class="lesson-nav-back" onclick="goBack()">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      Back
+    </div>
+    <div class="lesson-nav-title">Lesson 1</div>
+    <div class="lesson-nav-count">1 / 10</div>
+  </div>
+  <div class="read-progress"><div class="read-progress-fill" id="readProg"></div></div>
+
+  <div class="scroll-area" id="lessonScroll">
+    <div class="lesson-content">
+      <div class="lesson-eyebrow">Module 1 &middot; The Basics</div>
+      <h2>Why Investing Matters</h2>
+      <div class="lesson-read-meta">
+        <div class="read-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>4 min read</div>
+        <div class="read-meta-item"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Beginner</div>
+      </div>
+
+      <div class="pullquote">
+        <p>&ldquo;Someone is sitting in the shade today because someone planted a tree a long time ago.&rdquo; &mdash; Warren Buffett</p>
+      </div>
+
+      <div class="lesson-prose">
+        <p>Saving money is a good habit. But saving alone is rarely enough to build meaningful, lasting wealth. The reason comes down to one quiet, relentless force: <strong>inflation.</strong></p>
+        <p>Every year, inflation erodes the purchasing power of cash sitting idle. At a modest 3% annual rate, $100,000 today buys only about <strong>$74,000 worth of goods in ten years.</strong> Your balance looks the same on paper &mdash; but it buys significantly less. The longer you wait, the wider that gap grows.</p>
+      </div>
+
+      <div class="insight-box">
+        <div class="insight-label">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Sapphire Key Insight
+        </div>
+        <p>Investing is not speculation or gambling. Done thoughtfully, it is the disciplined act of putting your money to work so it grows faster than inflation &mdash; preserving and building real wealth over time.</p>
+      </div>
+
+      <div class="lesson-prose">
+        <p><strong>The math of compounding is on your side.</strong> A $10,000 investment growing at 7% annually becomes approximately $19,700 in ten years &mdash; nearly doubling without adding a single dollar. At twenty years, that same investment reaches roughly $38,700. At thirty years, over $76,000.</p>
+        <p>The engine behind this is <em>compound growth</em> &mdash; earning returns not just on your original investment, but on every dollar of previous gains. The longer your money stays invested, the more powerful this becomes.</p>
+      </div>
+
+      <div style="font-size:11px;font-weight:700;color:var(--mist);text-transform:uppercase;letter-spacing:.1em;margin:20px 0 10px;">Key Terms</div>
+      <div style="border:1px solid var(--stone);border-radius:14px;overflow:hidden;margin-bottom:20px;">
+        <div class="key-term" style="padding:14px 16px;">
+          <div class="key-term-dot"></div>
+          <div><div class="key-term-word">Inflation</div><div class="key-term-def">The gradual rise in prices over time that reduces what your money can buy. The U.S. historical average is roughly 2&ndash;3% per year.</div></div>
+        </div>
+        <div class="key-term" style="padding:14px 16px;">
+          <div class="key-term-dot"></div>
+          <div><div class="key-term-word">Compound Growth</div><div class="key-term-def">Returns earned on both your original investment <em>and</em> previously accumulated gains &mdash; creating exponential growth over time.</div></div>
+        </div>
+        <div class="key-term" style="padding:14px 16px;">
+          <div class="key-term-dot"></div>
+          <div><div class="key-term-word">Real Return</div><div class="key-term-def">Your investment return after adjusting for inflation &mdash; what your money actually gains in purchasing power.</div></div>
+        </div>
+        <div class="key-term" style="padding:14px 16px;border-bottom:none;">
+          <div class="key-term-dot"></div>
+          <div><div class="key-term-word">Time Horizon</div><div class="key-term-def">How long you plan to keep money invested. Longer time horizons allow compound growth to work its most dramatic effects.</div></div>
+        </div>
+      </div>
+
+      <div class="lesson-prose">
+        <p><strong>Does this mean you should invest every dollar?</strong> No. A sound financial plan always includes cash reserves for emergencies and short-term needs. But money earmarked for goals 5, 10, or 20+ years away &mdash; retirement, a child&rsquo;s education, long-term security &mdash; has no good reason to sit idle.</p>
+        <p>At Sapphire, we believe every client deserves to understand not just <em>what</em> to do with their money, but <em>why.</em> Investing is how ordinary families build extraordinary futures &mdash; and it starts with a single, informed decision to put time on your side.</p>
+      </div>
+
+      <!-- Advisor callout -->
+      <div style="background:linear-gradient(135deg,var(--sapphire-deep),var(--sapphire));border-radius:16px;padding:20px;margin:20px 0;position:relative;overflow:hidden;">
+        <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 80% 20%,rgba(184,150,90,.18) 0%,transparent 60%);"></div>
+        <div style="position:relative;">
+          <div style="font-size:10px;font-weight:700;color:var(--gold-light);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;">Your Sapphire Advisor</div>
+          <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:white;margin-bottom:6px;line-height:1.4;">Have questions about getting started?</div>
+          <div style="font-size:12.5px;color:rgba(255,255,255,.72);line-height:1.6;margin-bottom:14px;">Your advisor can connect these concepts directly to your personal financial plan &mdash; no obligation, no pressure.</div>
+          <div onclick="switchTab('profile',null)" style="display:inline-flex;align-items:center;gap:6px;background:var(--gold);color:white;font-size:13px;font-weight:600;padding:9px 16px;border-radius:10px;cursor:pointer;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.4 1.18h3a2 2 0 012 1.72c.127.96.361 1.9.7 2.81a2 2 0 01-.45 2.11L4.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+            Contact My Advisor
+          </div>
+        </div>
+      </div>
+      <div style="height:8px;"></div>
+    </div>
+  </div>
+
+  <div class="lesson-footer">
+    <button class="bookmark-btn" title="Bookmark">
+      <svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+    </button>
+    <button class="next-btn" onclick="goBack()">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to Course
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════ SCREEN: QUIZ ═══════════════════ -->
+<div class="screen" id="screen-quiz">
+  <div class="quiz-header">
+    <div class="quiz-top">
+      <div class="quiz-back" onclick="goBack()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back</div>
+      <div class="quiz-counter">Question <span id="qNum">1</span> of 3</div>
+      <div class="quiz-score" id="qScore">Score: 0</div>
+    </div>
+    <div class="q-dots">
+      <div class="q-dot current" id="dot0"></div>
+      <div class="q-dot" id="dot1"></div>
+      <div class="q-dot" id="dot2"></div>
+    </div>
+  </div>
+  <div class="scroll-area">
+    <div class="quiz-body" id="quizBody"></div>
+    <button class="quiz-next-btn" id="quizNextBtn" onclick="nextQuestion()">Next Question</button>
+    <div style="height:24px"></div>
+  </div>
+</div>
+
+<!-- ══════════════════ SCREEN: PROFILE ════════════════ -->
+<div class="screen" id="screen-profile">
+  <div class="scroll-area">
+    <div class="profile-header">
+      <div class="profile-avatar"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+      <div class="profile-name">Sarah M.</div>
+      <div class="profile-subtitle">Sapphire Wealth Client &middot; Member since 2021</div>
+      <div class="profile-stats-row">
+        <div class="pstat"><div class="pstat-num">1</div><div class="pstat-label">Lessons</div></div>
+        <div class="pstat"><div class="pstat-num">1</div><div class="pstat-label">Active</div></div>
+        <div class="pstat"><div class="pstat-num">85%</div><div class="pstat-label">Accuracy</div></div>
+        <div class="pstat"><div class="pstat-num">7</div><div class="pstat-label">Streak</div></div>
+      </div>
+    </div>
+
+    <div class="section-header"><div class="section-title">Your Badges</div><div class="section-link">View All</div></div>
+    <div class="badge-row">
+      <div class="badge-item"><div class="badge-circle earned"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div class="badge-name">First Lesson</div></div>
+      <div class="badge-item"><div class="badge-circle earned"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="badge-name">7-Day Streak</div></div>
+      <div class="badge-item"><div class="badge-circle locked"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></div><div class="badge-name">Course Complete</div></div>
+      <div class="badge-item"><div class="badge-circle locked"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="badge-name">Risk Expert</div></div>
+    </div>
+
+    <div class="section-header" style="margin-top:12px"><div class="section-title">Account</div></div>
+    <div class="profile-menu">
+      <div class="menu-item"><div class="menu-icon" style="background:var(--sapphire-pale)"><svg stroke="var(--sapphire)" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="menu-text"><strong>My Profile</strong><span>Personal details</span></div><div class="menu-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+      <div class="menu-item"><div class="menu-icon" style="background:var(--gold-pale)"><svg stroke="var(--gold)" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.4 1.18h3a2 2 0 012 1.72c.127.96.361 1.9.7 2.81a2 2 0 01-.45 2.11L4.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></div><div class="menu-text"><strong>Contact My Advisor</strong><span>(978) 685-1600</span></div><div class="menu-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+      <div class="menu-item"><div class="menu-icon" style="background:#f0fdf4"><svg stroke="#22c55e" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg></div><div class="menu-text"><strong>Saved Articles</strong><span>3 bookmarked</span></div><div class="menu-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+    </div>
+
+    <div style="margin:4px 22px 24px;background:linear-gradient(135deg,var(--sapphire-deep),var(--sapphire));border-radius:18px;padding:20px;position:relative;overflow:hidden">
+      <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 80% 30%,rgba(184,150,90,.18) 0%,transparent 55%)"></div>
+      <div style="position:relative">
+        <div style="font-size:11px;font-weight:700;color:var(--gold-light);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">Sapphire Wealth</div>
+        <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:white;margin-bottom:6px">Questions from your lessons?</div>
+        <div style="font-size:12.5px;color:rgba(255,255,255,.70);line-height:1.55;margin-bottom:14px">Your Sapphire advisor is here to connect learning to your personal financial plan.</div>
+        <div style="display:inline-flex;align-items:center;gap:6px;background:var(--gold);color:white;font-size:13px;font-weight:600;padding:9px 16px;border-radius:10px;cursor:pointer">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.4 1.18h3a2 2 0 012 1.72c.127.96.361 1.9.7 2.81a2 2 0 01-.45 2.11L4.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+          Call (978) 685-1600
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="tab-bar">
+    <div class="tab-item" onclick="switchTab('home',this)"><div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><span class="tab-label">Home</span></div>
+    <div class="tab-item" onclick="switchTab('courses',this)"><div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></div><span class="tab-label">Courses</span></div>
+    <div class="tab-item" onclick="switchTab('quiz',this)"><div class="tab-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><span class="tab-label">Quiz</span></div>
+    <div class="tab-item active" onclick="switchTab('profile',this)"><div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><span class="tab-label">Profile</span></div>
+  </div>
+</div>
+
     </div><!-- /app -->
   </div><!-- /phone-screen -->
 </div><!-- /phone-outer -->
 
-<div class="device-label">Sapphire Wealth · Investor Education App · Concept</div>
+<div class="device-label">Sapphire Wealth &middot; Investor Education App &middot; Concept</div>
 
 <script>
-// ── INIT ──
-document.addEventListener('DOMContentLoaded', function() {
-  renderCourseScreen(1); // pre-render course 1
-});
+/* ═══════════════════════════════════════════════
+   BULLETPROOF NAVIGATION — CSS class only, no inline style tricks
+   navTo(id)   : push current, show new screen
+   goBack()    : pop stack, return to previous
+   switchTab() : jump to tab screen, clear stack
+═══════════════════════════════════════════════ */
 
-// ── NAVIGATION STATE ──
-let history = [];
-let currentScreen = 'screen-home';
+var stack = [];
+var current = "screen-home";
 
-function showScreen(id, addHistory = true) {
-  const prev = document.getElementById(currentScreen);
-  const next = document.getElementById(id);
-  if (currentScreen === id) return;
-
-  if (addHistory) history.push(currentScreen);
-
-  // Outgoing: slide left
-  prev.classList.remove('hidden');
-  prev.classList.add('slide-left');
-
-  // Incoming: slide in from right
-  next.classList.remove('hidden', 'slide-left');
-  next.style.transform = 'translateX(100%)';
-  next.style.opacity = '0';
-
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      next.style.transition = 'transform 0.38s cubic-bezier(0.4,0,0.2,1), opacity 0.38s ease';
-      next.style.transform = '';
-      next.style.opacity = '';
-      setTimeout(() => {
-        prev.classList.add('hidden');
-        prev.classList.remove('slide-left');
-        next.style.transition = '';
-      }, 400);
-    });
-  });
-
-  currentScreen = id;
-
-  // Update status bar color
-  const lightScreens = ['screen-home', 'screen-course', 'screen-lesson', 'screen-quiz', 'screen-profile'];
-  document.getElementById('statusBar').className = 'status-bar';
+function navTo(id) {
+  if (id === current) return;
+  var prev = document.getElementById(current);
+  var next = document.getElementById(id);
+  if (!prev || !next) { return; }
+  stack.push(current);
+  prev.classList.remove("active");
+  next.classList.add("active");
+  current = id;
+  // Reset lesson scroll
+  if (id === "screen-lesson") {
+    var s = document.getElementById("lessonScroll");
+    var b = document.getElementById("readProg");
+    if (s) s.scrollTop = 0;
+    if (b) b.style.width = "0%";
+    initScroll();
+  }
+  // Start quiz fresh
+  if (id === "screen-quiz") { initQuiz(); }
 }
 
 function goBack() {
-  if (history.length === 0) return;
-  const prev = history.pop();
-  const curr = document.getElementById(currentScreen);
-  const target = document.getElementById(prev);
+  if (stack.length === 0) return;
+  var prev = stack.pop();
+  var curr = document.getElementById(current);
+  var target = document.getElementById(prev);
+  if (!curr || !target) return;
+  curr.classList.remove("active");
+  target.classList.add("active");
+  current = prev;
+}
 
-  curr.style.transition = 'transform 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.35s ease';
-  curr.style.transform = 'translateX(100%)';
-  curr.style.opacity = '0';
-
-  target.classList.remove('hidden', 'slide-left');
-  target.style.transform = 'translateX(-8%)';
-  target.style.opacity = '0.6';
-  target.style.transition = 'transform 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.35s ease';
-
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      target.style.transform = '';
-      target.style.opacity = '';
-      setTimeout(() => {
-        curr.classList.add('hidden');
-        curr.style.transition = '';
-        curr.style.transform = '';
-        curr.style.opacity = '';
-        target.style.transition = '';
-      }, 380);
-    });
+function switchTab(tab, el) {
+  stack = [];
+  var map = { home:"screen-home", courses:"screen-course", quiz:"screen-quiz", profile:"screen-profile" };
+  var id = map[tab];
+  if (!id) return;
+  // Deactivate all screens
+  document.querySelectorAll(".screen").forEach(function(s) { s.classList.remove("active"); });
+  document.getElementById(id).classList.add("active");
+  current = id;
+  // Sync all tab bars
+  document.querySelectorAll(".tab-bar .tab-item").forEach(function(ti) { ti.classList.remove("active"); });
+  document.querySelectorAll(".tab-bar .tab-item").forEach(function(ti) {
+    var lbl = ti.querySelector(".tab-label");
+    if (lbl && lbl.textContent.toLowerCase() === tab) ti.classList.add("active");
   });
-
-  currentScreen = prev;
+  if (id === "screen-quiz") initQuiz();
 }
 
-// ── COURSE DATA ──
-const courseData = {
-  1: {
-    id:1, title:'Investing Foundations for New Investors',
-    subtitle:'Master the core principles every investor needs before putting a dollar to work.',
-    tags:['Foundations','Beginner'], lessons:10, mins:45, rating:'4.9', progress:3,
-    accentFrom:'#0F2F5C', accentTo:'#2A5FA8',
-    modules:[
-      { name:'Module 1 — The Basics', lessons:[
-        { n:1, title:'Why Investing Matters', mins:4, done:true },
-        { n:2, title:'Understanding Risk & Return', mins:5, done:true },
-        { n:3, title:'The Power of Compound Growth', mins:5, done:true },
-      ]},
-      { name:'Module 2 — Building Your Portfolio', lessons:[
-        { n:4, title:'Diversification: Don\'t Put Everything in One Basket', mins:5, current:true },
-        { n:5, title:'Dollar-Cost Averaging Explained', mins:4, locked:true },
-        { n:6, title:'Stocks, Bonds & Funds: What\'s the Difference?', mins:6, locked:true },
-      ]},
-      { name:'Module 3 — Investor Psychology', lessons:[
-        { n:7, title:'Behavioral Biases That Cost Investors Money', mins:5, locked:true },
-        { n:8, title:'How to Invest During Market Volatility', mins:5, locked:true },
-        { n:9, title:'Setting Realistic Financial Goals', mins:4, locked:true },
-        { n:10, title:'Building Your First Investment Plan', mins:6, locked:true },
-      ]},
-    ],
-    nextLesson:4, nextLessonTitle:'Diversification: Don\'t Put Everything in One Basket',
-  },
-  2: {
-    id:2, title:'Retirement Planning at Every Life Stage',
-    subtitle:'A decade-by-decade guide to securing your future from your 30s through retirement.',
-    tags:['Retirement','Intermediate'], lessons:8, mins:38, rating:'4.8', progress:0,
-    accentFrom:'#7A5A1A', accentTo:'#B8965A',
-    modules:[
-      { name:'Module 1 — Starting Early', lessons:[
-        { n:1, title:'Why Every Decade Counts in Retirement Planning', mins:4, locked:true },
-        { n:2, title:'Retirement in Your 30s: Building the Foundation', mins:5, locked:true },
-      ]},
-      { name:'Module 2 — The Growth Years', lessons:[
-        { n:3, title:'Retirement in Your 40s: Accelerating Your Savings', mins:5, locked:true },
-        { n:4, title:'Retirement in Your 50s: Course Corrections & Catch-Up', mins:6, locked:true },
-        { n:5, title:'Social Security Strategy: When to Claim', mins:5, locked:true },
-      ]},
-      { name:'Module 3 — The Transition', lessons:[
-        { n:6, title:'Retirement in Your 60s: The Final Push', mins:5, locked:true },
-        { n:7, title:'Turning Savings into Reliable Income', mins:6, locked:true },
-        { n:8, title:'Your Retirement Paycheck: Making It Last', mins:7, locked:true },
-      ]},
-    ],
-    nextLesson:1, nextLessonTitle:'Why Every Decade Counts in Retirement Planning',
-  },
-  3: {
-    id:3, title:'Insurance & Wealth Protection',
-    subtitle:'Understand how the right coverage can protect decades of accumulated wealth.',
-    tags:['Protection','Beginner'], lessons:6, mins:28, rating:'4.7', progress:0,
-    accentFrom:'#5C3D1A', accentTo:'#9A6E2A',
-    modules:[
-      { name:'Module 1 — The Protection Mindset', lessons:[
-        { n:1, title:'Why Protection Planning Is Part of Wealth Management', mins:4, locked:true },
-        { n:2, title:'Life Insurance: Term vs. Permanent', mins:5, locked:true },
-      ]},
-      { name:'Module 2 — Key Coverage Areas', lessons:[
-        { n:3, title:'Disability Insurance: Your Income\'s Safety Net', mins:5, locked:true },
-        { n:4, title:'Long-Term Care: Planning for the Unexpected', mins:5, locked:true },
-        { n:5, title:'Liability & Umbrella Policies Explained', mins:4, locked:true },
-        { n:6, title:'How Insurance Fits Your Overall Financial Plan', mins:5, locked:true },
-      ]},
-    ],
-    nextLesson:1, nextLessonTitle:'Why Protection Planning Is Part of Wealth Management',
-  },
-};
-
-let activeCourse = 1;
-
-function showCourse(id) {
-  activeCourse = id || 1;
-  renderCourseScreen(activeCourse);
-  showScreen('screen-course');
-}
-
-function renderCourseScreen(id) {
-  const c = courseData[id]; if (!c) return;
-  const pct = Math.round((c.progress / c.lessons)*100);
-  document.getElementById('course-hero-bg').style.background = `linear-gradient(155deg,${c.accentFrom} 0%,${c.accentTo} 100%)`;
-  document.getElementById('course-title').textContent = c.title;
-  document.getElementById('course-subtitle').textContent = c.subtitle;
-  document.getElementById('course-stat-lessons').textContent = c.lessons+' Lessons';
-  document.getElementById('course-stat-mins').textContent = '~'+c.mins+' minutes';
-  document.getElementById('course-stat-rating').textContent = c.rating+' rating';
-  document.getElementById('course-tags').innerHTML = c.tags.map(t=>`<span class="ctag">${t}</span>`).join('');
-  document.getElementById('course-prog-fill').style.width = pct+'%';
-  document.getElementById('course-prog-label-done').textContent = c.progress+' / '+c.lessons;
-  const btn = document.getElementById('course-start-btn');
-  btn.textContent = c.progress > 0 ? `▶  Continue — Lesson ${c.nextLesson}` : `▶  Start Course`;
-  btn.onclick = () => { activeCourse = id; showLesson(c.nextLesson); };
-  let html = '';
-  c.modules.forEach(mod => {
-    html += `<div class="lesson-section-label">${mod.name}</div>`;
-    mod.lessons.forEach(l => {
-      const isDone=l.done, isCurrent=l.current, isLocked=l.locked;
-      const numClass = isDone?'done':isCurrent?'current':'locked';
-      const numInner = isDone
-        ? `<svg viewBox="0 0 24 24" width="16" height="16" stroke="white" fill="none" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>`
-        : l.n;
-      const arrow = isDone
-        ? `<div style="width:20px"></div>`
-        : isCurrent
-          ? `<div class="lesson-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>`
-          : `<div class="lesson-arrow"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>`;
-      const click = (isDone||isCurrent) ? `onclick="showLesson(${l.n})"` : '';
-      html += `<div class="lesson-item ${isCurrent?'active-lesson':''}" ${click} style="${isLocked?'opacity:0.5':''}">
-        <div class="lesson-num ${numClass}">${numInner}</div>
-        <div class="lesson-info"><h4>${l.title}</h4><span>${l.mins} min · ${isDone?'Completed':isCurrent?'Up Next':'Locked'}</span></div>
-        ${arrow}</div>`;
-    });
-  });
-  document.getElementById('lesson-list-body').innerHTML = html;
-}
-
-// ── LESSON CONTENT LIBRARY ──
-const lessonContent = {
-  '1-4': {
-    eyebrow:'Module 2 · Building Your Portfolio', title:"Diversification: Don't Put Everything in One Basket",
-    mins:5, level:'Beginner', num:4, total:10, hasQuiz:true,
-    pullquote:'"Diversification is the only free lunch in investing." — Harry Markowitz, Nobel Laureate',
-    body:[
-      {type:'p',html:'Every experienced investor knows one universal truth: <strong>no single investment is guaranteed to succeed.</strong> Markets are unpredictable. Companies stumble. Entire sectors fall out of favor. But investors who spread their money wisely tend to weather storms that devastate those who don\'t.'},
-      {type:'p',html:'This principle — diversification — is one of the most powerful concepts in personal finance, and it costs you nothing to implement.'},
-      {type:'insight',html:'A diversified portfolio doesn\'t eliminate risk — it manages it. When one investment drops, others may hold steady or even rise, smoothing out the ride.'},
-      {type:'p',html:'<strong>What does diversification actually mean?</strong> Think of it as owning a slice of many different things rather than a large share of one. A well-diversified portfolio might include:'},
-      {type:'terms',items:[
-        {word:'Stocks (Equities)',def:'Ownership shares in companies that grow over long periods but can be volatile short-term.'},
-        {word:'Bonds (Fixed Income)',def:'Loans to governments or corporations paying regular interest — generally lower risk than stocks.'},
-        {word:'Real Assets',def:'Real estate, commodities, and infrastructure that often move independently of stocks and bonds.'},
-        {word:'Cash & Equivalents',def:'Money market funds and short-term instruments that preserve capital while earning modest returns.'},
-      ]},
-      {type:'p',html:'The key is that these asset classes often <strong>don\'t move in the same direction at the same time.</strong> When stocks decline sharply, bonds frequently hold value or increase. At Sapphire, we build every portfolio with this principle at its core.'},
-    ],
-  },
-  '1-1': {
-    eyebrow:'Module 1 · The Basics', title:'Why Investing Matters',
-    mins:4, level:'Beginner', num:1, total:10, hasQuiz:false,
-    pullquote:'"Someone is sitting in the shade today because someone planted a tree a long time ago." — Warren Buffett',
-    body:[
-      {type:'p',html:'Saving money is important. But saving alone is rarely enough to build meaningful, lasting wealth. The reason comes down to one powerful force: <strong>inflation.</strong>'},
-      {type:'p',html:'Every year, inflation quietly erodes the purchasing power of cash sitting in a savings account. At 3% annual inflation, $100,000 today buys only about $74,000 worth of goods in 10 years — your balance looks the same, but it buys far less.'},
-      {type:'insight',html:'Investing is not speculation or gambling. Done thoughtfully, it is the disciplined act of putting your money to work so it grows faster than inflation over time.'},
-      {type:'p',html:'<strong>The math of compounding:</strong> A $10,000 investment growing at 7% annually becomes approximately $19,700 in 10 years — nearly doubling without adding a single dollar.'},
-      {type:'terms',items:[
-        {word:'Inflation',def:'The gradual rise in prices over time that reduces the purchasing power of money.'},
-        {word:'Compound Growth',def:'Returns earned on both the original investment and accumulated gains — creating exponential growth over time.'},
-        {word:'Real Return',def:'Investment return after adjusting for inflation — what your money actually gains in purchasing power.'},
-      ]},
-      {type:'p',html:'Investing is how ordinary families build extraordinary futures. It doesn\'t require perfect timing or insider knowledge — it requires patience, consistency, and a sound plan built around your goals.'},
-    ],
-  },
-  '1-2': {
-    eyebrow:'Module 1 · The Basics', title:'Understanding Risk & Return',
-    mins:5, level:'Beginner', num:2, total:10, hasQuiz:false,
-    pullquote:'"Risk comes from not knowing what you are doing." — Warren Buffett',
-    body:[
-      {type:'p',html:'Every investment involves some degree of risk. But risk in investing doesn\'t mean danger — it means <strong>uncertainty about future returns.</strong> The key is understanding what kinds of risk exist and how to manage them thoughtfully.'},
-      {type:'insight',html:'The fundamental rule of investing: higher potential returns almost always come with higher risk. There is no such thing as a high-return, no-risk investment. If something sounds too good to be true, it is.'},
-      {type:'terms',items:[
-        {word:'Market Risk',def:'The possibility that the overall market declines, pulling your investments down with it.'},
-        {word:'Concentration Risk',def:'The danger of having too much invested in a single stock, sector, or asset class.'},
-        {word:'Inflation Risk',def:'The risk that your investment returns don\'t keep pace with inflation, eroding real purchasing power.'},
-        {word:'Liquidity Risk',def:'The risk of not being able to sell an investment quickly without accepting a loss.'},
-      ]},
-      {type:'p',html:'Understanding your own <strong>risk tolerance</strong> — your emotional and financial ability to absorb losses — is the foundation of a sound investment plan. At Sapphire, every client conversation begins here.'},
-    ],
-  },
-  '1-3': {
-    eyebrow:'Module 1 · The Basics', title:'The Power of Compound Growth',
-    mins:5, level:'Beginner', num:3, total:10, hasQuiz:false,
-    pullquote:'"Compound interest is the eighth wonder of the world. He who understands it, earns it." — Attributed to Einstein',
-    body:[
-      {type:'p',html:'If there is one concept that separates wealthy investors from those who struggle to build wealth, it is a deep understanding of <strong>compound growth.</strong> It is not complicated — but its effects are extraordinary.'},
-      {type:'p',html:'Compounding means your returns earn returns. You invest $1,000. It earns 8%. Now you have $1,080. The next year, 8% is calculated on $1,080 — not $1,000. The extra $6.40 may seem trivial. Over 40 years, it is transformative.'},
-      {type:'insight',html:'The Rule of 72: Divide 72 by your annual return rate to estimate how many years it takes to double your money. At 7% returns, your money doubles roughly every 10.3 years.'},
-      {type:'terms',items:[
-        {word:'Compounding',def:'The process of earning returns on both the original principal and previously earned gains.'},
-        {word:'Time Horizon',def:'The length of time you plan to keep money invested — the most powerful variable in compound growth.'},
-        {word:'The Rule of 72',def:'A quick formula: divide 72 by your annual growth rate to estimate how long it takes to double an investment.'},
-      ]},
-      {type:'p',html:'This is why <strong>starting early matters so much.</strong> A 25-year-old who invests $5,000/year often ends up wealthier at 65 than a 35-year-old who invests $10,000/year — even though they invested half the money. Time is the most powerful investment tool available to you.'},
-    ],
-  },
-};
-
-function showLesson(num) {
-  const c = courseData[activeCourse];
-  let lessonMeta = null;
-  c.modules.forEach(m => m.lessons.forEach(l => { if (l.n === num) lessonMeta = l; }));
-  const key = `${activeCourse}-${num}`;
-  const content = lessonContent[key];
-  // Populate lesson screen
-  if (content) {
-    document.getElementById('lesson-eyebrow').textContent = content.eyebrow;
-    document.getElementById('lesson-main-title').textContent = content.title;
-    document.getElementById('lesson-mins').textContent = content.mins+' min read';
-    document.getElementById('lesson-level').textContent = content.level;
-    document.getElementById('lesson-num-label').textContent = 'Lesson '+content.num;
-    document.getElementById('lesson-count-label').textContent = content.num+' / '+content.total;
-    document.getElementById('pullquote-text').textContent = content.pullquote;
-    let bodyHtml = '';
-    content.body.forEach(block => {
-      if (block.type==='p') bodyHtml += `<p>${block.html}</p>`;
-      else if (block.type==='insight') bodyHtml += `<div class="insight-box"><div class="insight-label"><svg viewBox="0 0 24 24" width="12" height="12" stroke="var(--sapphire)" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Sapphire Key Insight</div><p>${block.html}</p></div>`;
-      else if (block.type==='terms') bodyHtml += block.items.map((it,i)=>`<div class="key-term" style="${i===block.items.length-1?'border-bottom:none':''}"><div class="key-term-dot"></div><div><div class="key-term-word">${it.word}</div><div class="key-term-def">${it.def}</div></div></div>`).join('');
-    });
-    document.getElementById('lesson-body').innerHTML = bodyHtml;
-    document.getElementById('lesson-quiz-cta').style.display = content.hasQuiz ? 'block' : 'none';
-    const nextBtn = document.getElementById('lesson-next-btn');
-    if (content.hasQuiz) {
-      nextBtn.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="white" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Quiz Time`;
-      nextBtn.onclick = showQuiz;
-    } else if (num < c.lessons) {
-      nextBtn.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="white" fill="none" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg> Next Lesson`;
-      nextBtn.onclick = () => showLesson(num+1);
-    } else {
-      nextBtn.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="white" fill="none" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg> Back to Course`;
-      nextBtn.onclick = () => showScreen('screen-course');
-    }
-  } else {
-    // Generic fallback
-    document.getElementById('lesson-eyebrow').textContent = 'Course Content';
-    document.getElementById('lesson-main-title').textContent = lessonMeta ? lessonMeta.title : 'Lesson '+num;
-    document.getElementById('lesson-mins').textContent = (lessonMeta?lessonMeta.mins:5)+' min read';
-    document.getElementById('lesson-level').textContent = 'Beginner';
-    document.getElementById('lesson-num-label').textContent = 'Lesson '+num;
-    document.getElementById('lesson-count-label').textContent = num+' / '+c.lessons;
-    document.getElementById('pullquote-text').textContent = '"Financial education is the first step toward financial freedom."';
-    document.getElementById('lesson-body').innerHTML = `<p>This lesson is part of the <strong>${c.title}</strong> series. Full lesson content will be available in the complete app.</p><p>In this lesson you will explore key concepts presented in the clear, jargon-free style Sapphire Wealth is known for.</p>`;
-    document.getElementById('lesson-quiz-cta').style.display = 'none';
-    const nextBtn = document.getElementById('lesson-next-btn');
-    nextBtn.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="white" fill="none" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg> Back to Course`;
-    nextBtn.onclick = () => showScreen('screen-course');
-  }
-  showScreen('screen-lesson');
-  initLesson();
-}
-
-function showQuiz() { showScreen('screen-quiz'); initQuiz(); }
-
-function showLockedToast(name) {
-  const toast = document.getElementById('locked-toast');
-  document.getElementById('locked-toast-name').textContent = name;
-  toast.style.opacity='1'; toast.style.transform='translateY(0)';
-  setTimeout(()=>{ toast.style.opacity='0'; toast.style.transform='translateY(12px)'; }, 2200);
-}
-
-function switchTab(tab) {
-  const map = { home: 'screen-home', courses: 'screen-course', quiz: 'screen-quiz', profile: 'screen-profile' };
-  if (tab === 'courses') { renderCourseScreen(1); }
-  history = [];
-
-  // Update all tab bars
-  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-  event.currentTarget.classList.add('active');
-
-  // Also sync tab bars across screens
-  const idx = ['home','courses','quiz','profile'].indexOf(tab);
-  document.querySelectorAll('.tab-bar').forEach(bar => {
-    bar.querySelectorAll('.tab-item').forEach((ti, i) => {
-      ti.classList.toggle('active', i === idx);
-    });
-  });
-
-  const target = map[tab];
-  if (target === currentScreen) return;
-
-  const curr = document.getElementById(currentScreen);
-  const next = document.getElementById(target);
-
-  curr.classList.add('hidden');
-  next.classList.remove('hidden', 'slide-left');
-  currentScreen = target;
-}
-
-// ── LESSON SCROLL PROGRESS ──
-let lessonScrollHandler = null;
-function initLesson() {
-  const el = document.getElementById('lessonScroll');
-  const bar = document.getElementById('readProg');
-  bar.style.width = '0%';
-  el.scrollTop = 0;
-  if (lessonScrollHandler) el.removeEventListener('scroll', lessonScrollHandler);
-  lessonScrollHandler = function() {
-    const max = el.scrollHeight - el.clientHeight;
-    const pct = max > 0 ? (el.scrollTop / max) * 100 : 0;
-    bar.style.width = Math.min(pct, 100) + '%';
+/* ── SCROLL PROGRESS ── */
+var scrollHandler = null;
+function initScroll() {
+  var el = document.getElementById("lessonScroll");
+  var bar = document.getElementById("readProg");
+  if (!el || !bar) return;
+  if (scrollHandler) el.removeEventListener("scroll", scrollHandler);
+  scrollHandler = function() {
+    var max = el.scrollHeight - el.clientHeight;
+    bar.style.width = (max > 0 ? Math.min(el.scrollTop / max * 100, 100) : 0) + "%";
   };
-  el.addEventListener('scroll', lessonScrollHandler);
+  el.addEventListener("scroll", scrollHandler);
 }
 
-// Home screen quick tile click — opens course 1, lesson 4
-function quickTileClick() { activeCourse = 1; showLesson(4); }
-
-// ── QUIZ ENGINE ──
-const questions = [
+/* ── QUIZ ── */
+var questions = [
   {
-    cat: 'Diversification',
-    q: 'What is the primary benefit of diversifying your investment portfolio?',
-    opts: [
-      'It guarantees you will never lose money',
-      'It reduces risk by spreading investments across different assets',
-      'It always maximizes your returns in the short term',
-      'It eliminates the need for professional financial advice'
-    ],
-    correct: 1,
-    explanation: 'Diversification reduces risk by ensuring that a poor performance in one asset class doesn't devastate your entire portfolio. It's not a guarantee against loss — but it's the smartest form of protection available.'
+    cat:"Investing Basics",
+    q:"Why is saving money alone often not enough to build lasting wealth?",
+    opts:["Banks charge too many fees","Inflation erodes purchasing power over time","Savings accounts are too risky","The government taxes savings heavily"],
+    correct:1,
+    explanation:"Inflation steadily reduces what your money can buy. Cash sitting idle loses real value every year, which is why investing — growing your money faster than inflation — is essential for building lasting wealth."
   },
   {
-    cat: 'Asset Classes',
-    q: 'Which pair of asset classes tends to move in OPPOSITE directions during market downturns?',
-    opts: [
-      'Stocks and real estate',
-      'Bonds and commodities',
-      'Stocks and bonds',
-      'Cash and stocks'
-    ],
-    correct: 2,
-    explanation: 'Stocks and bonds historically have had a low or negative correlation — when stocks fall sharply, investors often move to bonds as a safe haven, causing bond prices to rise. This is why holding both improves portfolio stability.'
+    cat:"Compound Growth",
+    q:"A $10,000 investment growing at 7% per year becomes approximately how much after 20 years?",
+    opts:["$14,000","$24,000","$38,700","$50,000"],
+    correct:2,
+    explanation:"Thanks to compound growth — earning returns on your returns — $10,000 at 7% annually becomes roughly $38,700 after 20 years. This is why starting early makes such a dramatic difference."
   },
   {
-    cat: 'Investor Psychology',
-    q: 'Harry Markowitz called diversification "the only free lunch in investing" because:',
-    opts: [
-      'It requires no time or research to implement',
-      'You can reduce risk without necessarily sacrificing expected returns',
-      'Government programs subsidize diversified portfolios',
-      'Diversified funds always outperform single-stock investments'
-    ],
-    correct: 1,
-    explanation: 'Markowitz showed mathematically that combining assets with imperfect correlations can reduce overall portfolio risk without reducing expected returns — a genuine "something for nothing" in the world of finance.'
+    cat:"Time Horizon",
+    q:"Which type of money is most appropriate to invest for long-term growth?",
+    opts:["Emergency fund cash","Money needed next month","Funds earmarked for goals 10+ years away","Your monthly grocery budget"],
+    correct:2,
+    explanation:"Money you will not need for 10 or more years — retirement savings, long-term goals — is ideal for investing. Short-term funds should remain accessible in cash or low-risk accounts."
   }
 ];
 
-let qIndex = 0;
-let score = 0;
-let answered = false;
+var qIdx = 0, qScore = 0, qAnswered = false;
 
 function initQuiz() {
-  qIndex = 0; score = 0; answered = false;
-  renderQuestion();
+  qIdx = 0; qScore = 0; qAnswered = false;
+  renderQ();
 }
 
-function renderQuestion() {
-  answered = false;
-  const q = questions[qIndex];
-  const body = document.getElementById('quizBody');
-  const letters = ['A','B','C','D'];
-
-  document.getElementById('qNum').textContent = qIndex + 1;
-  document.getElementById('qScore').textContent = 'Score: ' + score;
-
-  // Update dots
-  for (let i = 0; i < 3; i++) {
-    const d = document.getElementById('dot' + i);
-    d.className = 'q-dot' + (i < qIndex ? ' done' : i === qIndex ? ' current' : '');
+function renderQ() {
+  qAnswered = false;
+  var q = questions[qIdx];
+  var L = ["A","B","C","D"];
+  var el = document.getElementById("qNum"); if(el) el.textContent = qIdx+1;
+  var sc = document.getElementById("qScore"); if(sc) sc.textContent = "Score: "+qScore;
+  for(var i=0;i<3;i++) {
+    var d=document.getElementById("dot"+i);
+    if(d) d.className="q-dot"+(i<qIdx?" done":i===qIdx?" current":"");
   }
-
-  body.innerHTML = `
-    <div class="q-category">${q.cat}</div>
-    <h2>${q.q}</h2>
-    <div class="answer-options">
-      ${q.opts.map((o, i) => `
-        <div class="answer-opt" onclick="selectAnswer(${i})" id="opt${i}">
-          <div class="opt-letter" id="letter${i}">${letters[i]}</div>
-          <div class="opt-text">${o}</div>
-        </div>
-      `).join('')}
-    </div>
-    <div class="feedback-banner" id="feedback">
-      <svg viewBox="0 0 24 24" id="feedIcon"><polyline points="20 6 9 17 4 12"/></svg>
-      <div class="feedback-text">
-        <strong id="feedTitle"></strong>
-        <p id="feedText"></p>
-      </div>
-    </div>
-  `;
-
-  const btn = document.getElementById('quizNextBtn');
-  btn.classList.remove('show');
-  btn.textContent = qIndex < 2 ? '  Next Question  →' : '  See Results  →';
-  btn.innerHTML = qIndex < 2
-    ? '<svg viewBox="0 0 24 24" width="16" height="16" stroke="white" fill="none" stroke-width="2.2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg> Next Question'
-    : '<svg viewBox="0 0 24 24" width="16" height="16" stroke="white" fill="none" stroke-width="2.2" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> See Results';
+  var body = document.getElementById("quizBody");
+  if(!body) return;
+  body.innerHTML =
+    "<div class='q-category'>"+q.cat+"</div>"+
+    "<h2>"+q.q+"</h2>"+
+    "<div class='answer-options'>"+
+    q.opts.map(function(o,i){
+      return "<div class='answer-opt' onclick='pickAnswer("+i+")' id='ao"+i+"'>"+
+        "<div class='opt-letter' id='al"+i+"'>"+L[i]+"</div>"+
+        "<div class='opt-text'>"+o+"</div></div>";
+    }).join("")+
+    "</div>"+
+    "<div class='feedback-banner' id='fb'>"+
+      "<div class='feedback-text'><strong id='fbt'></strong><p id='fbp'></p></div>"+
+    "</div>";
+  var nb=document.getElementById("quizNextBtn");
+  if(nb){ nb.className="quiz-next-btn"; nb.textContent=qIdx<2?"Next Question":"See Results"; }
 }
 
-function selectAnswer(i) {
-  if (answered) return;
-  answered = true;
-  const q = questions[qIndex];
-  const isCorrect = i === q.correct;
-  if (isCorrect) score++;
-
-  // Style options
-  document.querySelectorAll('.answer-opt').forEach((el, j) => {
-    if (j === q.correct) el.classList.add('correct');
-    else if (j === i && !isCorrect) el.classList.add('wrong');
-  });
-
-  // Show feedback
-  const fb = document.getElementById('feedback');
-  fb.classList.add('show');
-  fb.className = 'feedback-banner show ' + (isCorrect ? 'correct-fb' : 'wrong-fb');
-  document.getElementById('feedIcon').innerHTML = isCorrect
-    ? '<polyline points="20 6 9 17 4 12"/>'
-    : '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>';
-  document.getElementById('feedTitle').textContent = isCorrect ? 'Well done!' : 'Not quite.';
-  document.getElementById('feedText').textContent = q.explanation;
-
-  document.getElementById('quizNextBtn').classList.add('show');
+function pickAnswer(i) {
+  if(qAnswered) return;
+  qAnswered = true;
+  var q = questions[qIdx];
+  var ok = i===q.correct;
+  if(ok) qScore++;
+  for(var j=0;j<q.opts.length;j++) {
+    var o=document.getElementById("ao"+j);
+    if(o) {
+      if(j===q.correct) o.classList.add("correct");
+      else if(j===i&&!ok) o.classList.add("wrong");
+    }
+  }
+  var fb=document.getElementById("fb");
+  if(fb) {
+    fb.className="feedback-banner show "+(ok?"correct-fb":"wrong-fb");
+    var ft=document.getElementById("fbt"); if(ft) ft.textContent=ok?"Well done!":"Not quite.";
+    var fp=document.getElementById("fbp"); if(fp) fp.textContent=q.explanation;
+  }
+  var nb=document.getElementById("quizNextBtn"); if(nb) nb.classList.add("show");
 }
 
 function nextQuestion() {
-  if (qIndex < 2) {
-    qIndex++;
-    renderQuestion();
-  } else {
-    showResults();
-  }
+  if(qIdx<2) { qIdx++; renderQ(); }
+  else { showResults(); }
 }
 
 function showResults() {
-  const pct = Math.round((score / 3) * 100);
-  const grade = score === 3 ? 'Perfect Score!' : score === 2 ? 'Great Work!' : 'Keep Learning!';
-  const body = document.getElementById('quizBody');
-  body.innerHTML = `
-    <div style="text-align:center;padding:20px 0 8px">
-      <div style="width:80px;height:80px;border-radius:50%;background:${score===3?'var(--sapphire)':score===2?'var(--gold)':'var(--mist)'};margin:0 auto 16px;display:flex;align-items:center;justify-content:center;">
-        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-      </div>
-      <div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--charcoal);margin-bottom:6px">${grade}</div>
-      <div style="font-size:42px;font-family:'Playfair Display',serif;font-weight:700;color:${score===3?'var(--sapphire)':score===2?'var(--gold)':'var(--mist)'};line-height:1;margin:12px 0 6px">${score}/3</div>
-      <div style="font-size:14px;color:var(--mist);margin-bottom:28px">${pct}% correct · Diversification module</div>
-      <div style="background:var(--sapphire-pale);border:1px solid var(--sapphire-light);border-radius:14px;padding:16px 18px;text-align:left;margin-bottom:16px">
-        <div style="font-size:11px;font-weight:700;color:var(--sapphire);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px">Sapphire Tip</div>
-        <div style="font-size:13.5px;color:var(--sapphire-deep);line-height:1.6">${score===3?'Outstanding! You have a strong grasp of diversification. Lesson 5 awaits — Dollar-Cost Averaging.':score===2?'Solid understanding. Review the asset correlation concepts before moving to Lesson 5.':'Revisit the lesson content, especially the section on asset classes, before retaking the quiz.'}</div>
-      </div>
-      <div onclick="goBack()" style="background:var(--sapphire);color:white;padding:14px 24px;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:0 6px 18px rgba(27,75,138,0.28)">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        Continue to Lesson 5
-      </div>
-    </div>
-  `;
-  document.getElementById('quizNextBtn').classList.remove('show');
-
-  // Update dots all done
-  for (let i = 0; i < 3; i++) {
-    document.getElementById('dot' + i).className = 'q-dot done';
-  }
+  var pct=Math.round(qScore/3*100);
+  var grade=qScore===3?"Perfect Score!":qScore===2?"Great Work!":"Keep Learning!";
+  var col=qScore===3?"var(--sapphire)":qScore===2?"var(--gold)":"var(--mist)";
+  var tip=qScore===3?"Excellent grasp of investing basics. You are ready for Lesson 2.":
+          qScore===2?"Good foundation. Review compound growth before moving on.":
+          "Revisit the Why Investing Matters lesson before continuing.";
+  var body=document.getElementById("quizBody");
+  if(body) body.innerHTML=
+    "<div style='text-align:center;padding:20px 0'>"+
+    "<div style='width:80px;height:80px;border-radius:50%;background:"+col+";margin:0 auto 16px;display:flex;align-items:center;justify-content:center'>"+
+    "<svg width='36' height='36' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/></svg></div>"+
+    "<div style='font-family:Playfair Display,serif;font-size:24px;font-weight:700;color:var(--charcoal)'>"+grade+"</div>"+
+    "<div style='font-size:42px;font-weight:700;color:"+col+";line-height:1;margin:12px 0 6px'>"+qScore+"/3</div>"+
+    "<div style='font-size:14px;color:var(--mist);margin-bottom:24px'>"+pct+"% correct</div>"+
+    "<div style='background:var(--sapphire-pale);border:1px solid var(--sapphire-light);border-radius:14px;padding:16px;text-align:left;margin-bottom:16px'>"+
+    "<div style='font-size:11px;font-weight:700;color:var(--sapphire);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px'>Sapphire Tip</div>"+
+    "<div style='font-size:13.5px;color:var(--sapphire-deep);line-height:1.6'>"+tip+"</div></div>"+
+    "<div onclick='switchTab(\"home\",null)' style='background:var(--sapphire);color:white;padding:14px 24px;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px'>"+
+    "<svg width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round'><path d='M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z'/><polyline points='9 22 9 12 15 12 15 22'/></svg>"+
+    "Back to Main Menu</div>"+
+    "</div>";
+  var nb=document.getElementById("quizNextBtn"); if(nb) nb.className="quiz-next-btn";
+  for(var i=0;i<3;i++) { var d=document.getElementById("dot"+i); if(d) d.className="q-dot done"; }
 }
+
+/* ── INIT ── */
+// screen-home is already visible via CSS (transform:translateX(0))
+// No JS init needed for navigation - pure CSS driven
+initScroll();
 </script>
 </body>
 </html>
